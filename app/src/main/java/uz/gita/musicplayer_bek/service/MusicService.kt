@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.CommandEnum
 import uz.gita.musicplayer_bek.data.model.MusicData
@@ -48,7 +49,7 @@ class MusicService : Service() {
 
     private fun createChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val importance = NotificationManager.IMPORTANCE_LOW
             val mChannel = NotificationChannel(CHANNEL_ID, CHANNEL_NAME, importance)
 
             val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -62,7 +63,7 @@ class MusicService : Service() {
             .setCustomContentView(createRemoteView(musicData))
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setVibrate(longArrayOf(0))
+            .setOnlyAlertOnce(true)
             .setOngoing(true)
         startForeground(1, notificationBuilder.build())
     }
@@ -100,7 +101,7 @@ class MusicService : Service() {
         if (MyEventBus.cursor == null || MyEventBus.selectMusicPos == -1) return START_NOT_STICKY
         val command = intent?.extras?.getSerializable("COMMAND") as CommandEnum
         doneCommand(command)
-        if(command.name != CommandEnum.CLOSE.name) {
+        if (command.name != CommandEnum.CLOSE.name) {
             createNotification(MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos))
         }
         return START_NOT_STICKY
@@ -115,49 +116,49 @@ class MusicService : Service() {
             }
 
             CommandEnum.PREV -> {
-                _musicPlayer?.stop()
                 if (MyEventBus.selectMusicPos - 1 == -1) {
                     MyEventBus.selectMusicPos = MyEventBus.cursor!!.count - 1
-                    val data = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
-                    _musicPlayer = MediaPlayer.create(this, Uri.parse(data.data))
                 } else {
-                    val data =
-                        MyEventBus.cursor!!.getMusicDataByPosition(--MyEventBus.selectMusicPos)
-                    _musicPlayer = MediaPlayer.create(this, Uri.parse(data.data))
+                    --MyEventBus.selectMusicPos
                 }
-                musicPlayer.start()
+                doneCommand(CommandEnum.PLAY)
             }
 
             CommandEnum.NEXT -> {
-                _musicPlayer?.stop()
                 if (MyEventBus.selectMusicPos + 1 == MyEventBus.cursor!!.count) {
                     MyEventBus.selectMusicPos = 0
-                    val data = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
-                    _musicPlayer = MediaPlayer.create(this, Uri.parse(data.data))
                 } else {
-                    val data =
-                        MyEventBus.cursor!!.getMusicDataByPosition(++MyEventBus.selectMusicPos)
-                    _musicPlayer = MediaPlayer.create(this, Uri.parse(data.data))
+                    ++MyEventBus.selectMusicPos
                 }
-                musicPlayer.start()
+                doneCommand(CommandEnum.PLAY)
             }
 
             CommandEnum.PLAY -> {
                 val data = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
+                scope.launch { MyEventBus.currentMusicData.emit(data) }
+
                 MyEventBus.totalTime = data.duration.toInt()
                 _musicPlayer?.stop()
                 _musicPlayer = MediaPlayer.create(this, Uri.parse(data.data))
                 musicPlayer.seekTo(MyEventBus.currentTime)
                 musicPlayer.setOnCompletionListener { }
+
                 job?.cancel()
                 job = moveProgress().onEach {
                     MyEventBus.currentTimeFlow.emit(it)
                 }.launchIn(scope)
+                scope.launch {
+                    MyEventBus.isPlaying.emit(true)
+                }
                 musicPlayer.start()
             }
 
             CommandEnum.PAUSE -> {
                 musicPlayer.pause()
+                scope.launch {
+                    MyEventBus.isPlaying.emit(false)
+                }
+                job?.cancel()
             }
 
             CommandEnum.CLOSE -> {

@@ -1,5 +1,6 @@
 package uz.gita.musicplayer_bek.presentation.play
 
+import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.compose.foundation.Image
@@ -20,10 +21,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -36,8 +34,9 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.androidx.AndroidScreen
 import cafe.adriel.voyager.hilt.getViewModel
 import org.orbitmvi.orbit.compose.collectAsState
-import uz.gita.musicplayer_bek.MainActivity
+import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.gita.musicplayer_bek.R
+import uz.gita.musicplayer_bek.data.model.ActionEnum
 import uz.gita.musicplayer_bek.data.model.CommandEnum
 import uz.gita.musicplayer_bek.service.MusicService
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
@@ -49,9 +48,35 @@ import java.util.concurrent.TimeUnit
 class PlayScreen : AndroidScreen() {
     @Composable
     override fun Content() {
+        val context = LocalContext.current
+        val viewModel: PlayContract.ViewModel = getViewModel<PlayViewModel>()
+
+        viewModel.collectSideEffect { sideEffect ->
+            when (sideEffect) {
+                is PlayContract.SideEffect.UserAction -> {
+                    when (sideEffect.actionEnum) {
+                        ActionEnum.MANAGE -> {
+                            startMusicService(context, CommandEnum.MANAGE)
+                        }
+
+                        ActionEnum.NEXT -> {
+                            startMusicService(context, CommandEnum.NEXT)
+                        }
+
+                        ActionEnum.PREV -> {
+                            startMusicService(context, CommandEnum.PREV)
+                        }
+
+                        ActionEnum.PAUSE -> {
+                            startMusicService(context, CommandEnum.PAUSE)
+                        }
+                    }
+                }
+            }
+        }
+
         MusicPlayerTheme {
             Surface(color = MaterialTheme.colorScheme.background) {
-                val viewModel: PlayContract.ViewModel = getViewModel<PlayViewModel>()
                 val uiState = viewModel.collectAsState().value
                 PlayScreenContent(
                     uiState, viewModel::onEventDispatcher
@@ -59,6 +84,33 @@ class PlayScreen : AndroidScreen() {
             }
         }
     }
+
+    private fun startMusicService(context: Context, commandEnum: CommandEnum) {
+        val intent = Intent(context, MusicService::class.java)
+        intent.putExtra("COMMAND", commandEnum)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            context.startForegroundService(intent)
+        } else context.startService(intent)
+    }
+}
+
+private fun getTime(time: Int): String {
+    val hour = time / 3600
+    val minute = (time % 3600) / 60
+    val second = time % 60
+
+    val hourText = if (hour > 0) {
+        if (hour < 10) "0$hour:"
+        else "$hour:"
+    } else ""
+
+    val minuteText = if (minute < 10) "0$minute:"
+    else "$minute:"
+
+    val secondText = if (second < 10) "0$second"
+    else "$second"
+
+    return "$hourText$minuteText$secondText"
 }
 
 @Composable
@@ -67,43 +119,27 @@ fun PlayScreenContent(
     eventListener: (PlayContract.Intent) -> Unit
 ) {
 
-    val activity = LocalContext.current as MainActivity
-    val intent = Intent(activity, MusicService::class.java)
+    val musicData = MyEventBus.currentMusicData.collectAsState(
+        initial = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
+    )
 
-    var seekBarState by remember { mutableStateOf(0f) }
+    val seekBarState = MyEventBus.currentTimeFlow.collectAsState(initial = 0)
+    val mucisIsPlaying = MyEventBus.isPlaying.collectAsState()
 
-    val musicData by remember { mutableStateOf(MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)) }
-
-    val milliseconds = musicData.duration
+    val milliseconds = musicData.value!!.duration
     val hours = TimeUnit.MILLISECONDS.toHours(milliseconds)
     val minutes = (milliseconds / 1000 / 60) % 60
     val seconds = (milliseconds / 1000) % 60
 
     val duration = if (hours == 0L) "%02d:%02d".format(minutes, seconds)
-    else "%02d:%02d:%02d".format(hours, minutes, seconds)
+    else "%02d:%02d:%02d".format(hours, minutes, seconds) // 03:45
 
     when (uiState) {
-        PlayContract.UIState.Manage -> {
-            logger("PlayScreen = Manage")
-        }
-
-        PlayContract.UIState.Next -> {
-            logger("PlayScreen = Next")
-            intent.putExtra("COMMAND", CommandEnum.NEXT)
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                activity.startForegroundService(intent)
-            } else activity.startService(intent)
-        }
-
-        PlayContract.UIState.Prev -> {
-            if (MyEventBus.selectMusicPos - 1 == -1) {
-                MyEventBus.selectMusicPos = MyEventBus.cursor!!.count - 1
-            } else {
-                --MyEventBus.selectMusicPos
-            }
-            logger("PlayScreen = Prev")
+        PlayContract.UIState.UpdateState -> {
+            logger("PlayScreen = UpdateState")
         }
     }
+
 
     Column(
         modifier = Modifier
@@ -133,7 +169,7 @@ fun PlayScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
-                text = musicData.title ?: "Unknown",
+                text = musicData.value!!.title ?: "Unknown",
                 fontSize = 24.sp
             )
 
@@ -142,7 +178,7 @@ fun PlayScreenContent(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 4.dp),
-                text = musicData.artist ?: "Unknown",
+                text = musicData.value!!.artist ?: "Unknown",
                 fontSize = 18.sp
             )
         }
@@ -154,11 +190,9 @@ fun PlayScreenContent(
                 .weight(1f)
         ) {
             Slider(
-                value = seekBarState,
+                value = seekBarState.value.toFloat() / musicData.value!!.duration,
                 onValueChange = { newState ->
-                    seekBarState = newState
-                    //  val seekDuration = (musicData.duration * newState).toInt()
-//                onUpdatePosition?.invoke(seekDuration)
+                    MyEventBus.currentTime = newState.toInt()
                 },
                 onValueChangeFinished = {
                     // val seekDuration = (musicData.duration * seekBarState).toInt()
@@ -171,7 +205,7 @@ fun PlayScreenContent(
                     modifier = Modifier
                         .width(0.dp)
                         .weight(1f),
-                    text = "00:00"
+                    text = getTime(seekBarState.value / 1000)
                 )
                 Text(
                     modifier = Modifier
@@ -194,7 +228,7 @@ fun PlayScreenContent(
                         .width(0.dp)
                         .weight(1f)
                         .size(70.dp)
-                        .clickable { eventListener.invoke(PlayContract.Intent.Prev) },
+                        .clickable { eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.PREV)) },
                     painter = painterResource(id = R.drawable.ic_next),
                     contentDescription = null
                 )
@@ -204,8 +238,11 @@ fun PlayScreenContent(
                         .width(0.dp)
                         .weight(1f)
                         .size(70.dp)
-                        .clickable { eventListener.invoke(PlayContract.Intent.Manage) },
-                    painter = painterResource(id = R.drawable.ic_play),
+                        .clickable { eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.MANAGE)) },
+                    painter = painterResource(
+                        id = if (mucisIsPlaying.value) R.drawable.ic_pause
+                        else R.drawable.ic_play
+                    ),
                     contentDescription = null
                 )
 
@@ -214,7 +251,7 @@ fun PlayScreenContent(
                         .width(0.dp)
                         .weight(1f)
                         .size(70.dp)
-                        .clickable { eventListener.invoke(PlayContract.Intent.Next) },
+                        .clickable { eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.NEXT)) },
                     painter = painterResource(id = R.drawable.ic_next),
                     contentDescription = null
                 )

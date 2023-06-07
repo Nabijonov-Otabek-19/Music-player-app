@@ -1,22 +1,23 @@
 package uz.gita.musicplayer_bek.presentation.play
 
 import org.orbitmvi.orbit.ContainerHost
+import uz.gita.musicplayer_bek.data.model.ActionEnum
 
 sealed interface PlayContract {
 
-    interface ViewModel : ContainerHost<UIState, Nothing> {
+    interface ViewModel : ContainerHost<UIState, SideEffect> {
         fun onEventDispatcher(intent: Intent)
     }
 
     sealed interface UIState {
-        object Next : UIState
-        object Prev : UIState
-        object Manage : UIState
+        object UpdateState : UIState
+    }
+
+    sealed interface SideEffect {
+        data class UserAction(val actionEnum: ActionEnum): SideEffect
     }
 
     sealed interface Intent {
-        object Next : Intent
-        object Prev : Intent
-        object Manage : Intent
+        data class UserAction(val actionEnum: ActionEnum): Intent
     }
 }
