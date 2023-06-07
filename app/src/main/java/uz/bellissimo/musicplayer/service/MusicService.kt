@@ -144,6 +144,7 @@ class MusicService : Service() {
 
             CommandEnum.PLAY -> {
                 val data = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
+                MyEventBus.totalTime = data.duration.toInt()
                 _musicPlayer?.stop()
                 _musicPlayer = MediaPlayer.create(this, Uri.parse(data.data))
                 musicPlayer.seekTo(MyEventBus.currentTime)
