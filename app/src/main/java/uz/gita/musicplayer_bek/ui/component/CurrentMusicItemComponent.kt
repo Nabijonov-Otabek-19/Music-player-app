@@ -77,7 +77,7 @@ fun CurrentMusicItemComponent(
             ) {
                 Text(
                     text = musicData.title ?: "Unknown name",
-                    color = Color.Black,
+                    color = Color.White,
                     fontSize = TextUnit(18f, TextUnitType.Sp),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
