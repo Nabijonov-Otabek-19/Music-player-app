@@ -244,7 +244,9 @@ fun PlayScreenContent(
                         .weight(1f)
                         .size(70.dp)
                         .clip(CircleShape)
-                        .clickable { eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.PREV)) },
+                        .clickable {
+                            eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.PREV))
+                            seekBarValue = 0},
                     painter = painterResource(id = R.drawable.ic_next),
                     contentDescription = null
                 )
@@ -269,7 +271,10 @@ fun PlayScreenContent(
                         .weight(1f)
                         .size(70.dp)
                         .clip(CircleShape)
-                        .clickable { eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.NEXT)) },
+                        .clickable {
+                            eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.NEXT))
+                            seekBarValue = 0
+                                   },
                     painter = painterResource(id = R.drawable.ic_next),
                     contentDescription = null
                 )
