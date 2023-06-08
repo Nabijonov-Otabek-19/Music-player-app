@@ -11,12 +11,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,21 +32,32 @@ import androidx.compose.ui.unit.dp
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.MusicData
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
+import uz.gita.musicplayer_bek.utils.MyEventBus
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
-fun MusicItemComponent(
+fun CurrentMusicItemComponent(
+    modifier: Modifier = Modifier,
     musicData: MusicData,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onClickManage: () -> Unit
 ) {
-    Surface(modifier = Modifier
-        .wrapContentHeight()
-        .fillMaxWidth()
-        .padding(vertical = 8.dp, horizontal = 4.dp)
-        .clickable { onClick.invoke() }
-    ) {
-        Row(modifier = Modifier.wrapContentHeight()) {
+    val mucisIsPlaying = MyEventBus.isPlaying.collectAsState()
 
+    Surface(
+        color = MaterialTheme.colorScheme.secondary,
+        modifier = modifier
+            .padding(8.dp)
+            .wrapContentHeight()
+            .clip(shape = RoundedCornerShape(12.dp))
+            .fillMaxWidth()
+            .background(color = MaterialTheme.colorScheme.secondary)
+            .clickable { onClick.invoke() }
+    ) {
+        Row(modifier = Modifier
+            .wrapContentHeight()
+            .padding(4.dp))
+        {
             Image(
                 painter = painterResource(id = R.drawable.ic_music_disk),
                 contentDescription = "MusicDisk",
@@ -76,13 +91,26 @@ fun MusicItemComponent(
                     maxLines = 1
                 )
             }
+
+            Image(
+                modifier = Modifier
+                    .align(Alignment.CenterVertically)
+                    .padding(8.dp)
+                    .clip(CircleShape)
+                    .clickable { onClickManage.invoke() },
+                painter = painterResource(
+                    id = if (mucisIsPlaying.value) R.drawable.ic_pause
+                    else R.drawable.ic_play
+                ),
+                contentDescription = null
+            )
         }
     }
 }
 
 @Composable
 @Preview(showBackground = true)
-fun MusicItemComponentPreview() {
+fun CurrentMusicItemComponentPreview() {
     MusicPlayerTheme {
         val musicDate = MusicData(
             0,
@@ -92,9 +120,10 @@ fun MusicItemComponentPreview() {
             10000
         )
 
-        MusicItemComponent(
+        CurrentMusicItemComponent(
             musicData = musicDate,
-            onClick = {}
+            onClick = {},
+            onClickManage = {}
         )
     }
 }

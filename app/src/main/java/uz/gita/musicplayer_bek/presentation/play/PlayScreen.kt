@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
@@ -24,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -140,7 +143,6 @@ fun PlayScreenContent(
         }
     }
 
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -158,7 +160,7 @@ fun PlayScreenContent(
                 modifier = Modifier
                     .size(250.dp)
                     .padding(top = 70.dp)
-                    .background(color = Color.Gray)
+                    .background(Color(0XFF988E8E), RoundedCornerShape(4.dp))
                     .align(Alignment.CenterHorizontally),
                 painter = painterResource(id = R.drawable.ic_music_disk),
                 contentDescription = null
@@ -228,6 +230,7 @@ fun PlayScreenContent(
                         .width(0.dp)
                         .weight(1f)
                         .size(70.dp)
+                        .clip(CircleShape)
                         .clickable { eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.PREV)) },
                     painter = painterResource(id = R.drawable.ic_next),
                     contentDescription = null
@@ -238,6 +241,7 @@ fun PlayScreenContent(
                         .width(0.dp)
                         .weight(1f)
                         .size(70.dp)
+                        .clip(CircleShape)
                         .clickable { eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.MANAGE)) },
                     painter = painterResource(
                         id = if (mucisIsPlaying.value) R.drawable.ic_pause
@@ -251,6 +255,7 @@ fun PlayScreenContent(
                         .width(0.dp)
                         .weight(1f)
                         .size(70.dp)
+                        .clip(CircleShape)
                         .clickable { eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.NEXT)) },
                     painter = painterResource(id = R.drawable.ic_next),
                     contentDescription = null

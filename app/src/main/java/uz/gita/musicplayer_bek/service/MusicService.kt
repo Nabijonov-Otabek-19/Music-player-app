@@ -138,10 +138,12 @@ class MusicService : Service() {
                 scope.launch { MyEventBus.currentMusicData.emit(data) }
 
                 MyEventBus.totalTime = data.duration.toInt()
-                _musicPlayer?.stop()
+                _musicPlayer?.pause()
                 _musicPlayer = MediaPlayer.create(this, Uri.parse(data.data))
                 musicPlayer.seekTo(MyEventBus.currentTime)
-                musicPlayer.setOnCompletionListener { }
+                musicPlayer.setOnCompletionListener {
+                    doneCommand(CommandEnum.NEXT)
+                }
 
                 job?.cancel()
                 job = moveProgress().onEach {
@@ -162,7 +164,7 @@ class MusicService : Service() {
             }
 
             CommandEnum.CLOSE -> {
-                musicPlayer.stop()
+                musicPlayer.pause()
                 ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
             }
         }
