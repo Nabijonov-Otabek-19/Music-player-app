@@ -109,10 +109,22 @@ class MusicService : Service() {
 
     private fun doneCommand(commandEnum: CommandEnum) {
         when (commandEnum) {
-
             CommandEnum.MANAGE -> {
                 if (musicPlayer.isPlaying) doneCommand(CommandEnum.PAUSE)
-                else doneCommand(CommandEnum.PLAY)
+                else doneCommand(CommandEnum.CONTINUE)
+            }
+
+            CommandEnum.CONTINUE -> {
+                job = moveProgress().onEach { MyEventBus.currentTimeFlow.emit(it) }.launchIn(scope)
+                musicPlayer.seekTo(MyEventBus.currentTime.value)
+                scope.launch { MyEventBus.isPlaying.emit(true) }
+                musicPlayer.start()
+            }
+
+            CommandEnum.UPDATE_SEEKBAR -> {
+                job?.cancel()
+                musicPlayer.seekTo(MyEventBus.currentTime.value)
+                job = moveProgress().onEach { MyEventBus.currentTimeFlow.emit(it) }.launchIn(scope)
             }
 
             CommandEnum.PREV -> {
@@ -137,10 +149,11 @@ class MusicService : Service() {
                 val data = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
                 scope.launch { MyEventBus.currentMusicData.emit(data) }
 
+                MyEventBus.currentTime.value = 0
                 MyEventBus.totalTime = data.duration.toInt()
-                _musicPlayer?.pause()
+                _musicPlayer?.stop()
                 _musicPlayer = MediaPlayer.create(this, Uri.parse(data.data))
-                musicPlayer.seekTo(MyEventBus.currentTime)
+                musicPlayer.seekTo(MyEventBus.currentTime.value)
                 musicPlayer.setOnCompletionListener { doneCommand(CommandEnum.NEXT) }
 
                 job?.cancel()
@@ -151,8 +164,9 @@ class MusicService : Service() {
             }
 
             CommandEnum.PAUSE -> {
-
                 musicPlayer.pause()
+                MyEventBus.currentTime.value = MyEventBus.currentTimeFlow.value
+                musicPlayer.seekTo(MyEventBus.currentTime.value)
                 job?.cancel()
                 scope.launch { MyEventBus.isPlaying.emit(false) }
             }
@@ -165,7 +179,7 @@ class MusicService : Service() {
     }
 
     private fun moveProgress(): Flow<Int> = flow {
-        for (i in MyEventBus.currentTime until MyEventBus.totalTime step 1000) {
+        for (i in MyEventBus.currentTime.value until MyEventBus.totalTime step 1000) {
             emit(i)
             delay(1000)
         }

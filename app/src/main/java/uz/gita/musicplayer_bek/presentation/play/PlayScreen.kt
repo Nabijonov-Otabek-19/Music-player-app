@@ -20,10 +20,15 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -70,8 +75,8 @@ class PlayScreen : AndroidScreen() {
                             startMusicService(context, CommandEnum.PREV)
                         }
 
-                        ActionEnum.PAUSE -> {
-                            startMusicService(context, CommandEnum.PAUSE)
+                        ActionEnum.UPDATE_SEEKBAR -> {
+                            startMusicService(context, CommandEnum.UPDATE_SEEKBAR)
                         }
                     }
                 }
@@ -127,6 +132,7 @@ fun PlayScreenContent(
     )
 
     val seekBarState = MyEventBus.currentTimeFlow.collectAsState(initial = 0)
+    var seekBarValue by remember { mutableStateOf(seekBarState.value) }
     val mucisIsPlaying = MyEventBus.isPlaying.collectAsState()
 
     val milliseconds = musicData.value!!.duration
@@ -148,7 +154,6 @@ fun PlayScreenContent(
             .fillMaxSize()
             .padding(horizontal = 8.dp)
     ) {
-
         Column(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
@@ -192,15 +197,23 @@ fun PlayScreenContent(
                 .weight(1f)
         ) {
             Slider(
-                value = seekBarState.value.toFloat() / musicData.value!!.duration,
-                onValueChange = { newState ->
-                    MyEventBus.currentTime = newState.toInt()
-                },
+                value = seekBarValue.toFloat(),
+                onValueChange = { newState -> seekBarValue = newState.toInt() },
                 onValueChangeFinished = {
+                    MyEventBus.currentTime.value = seekBarValue
+                    eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.UPDATE_SEEKBAR))
                     logger("Slider = onValueChangeFinished")
-                }
+                },
+                valueRange = 0f..musicData.value!!.duration.toFloat(),
+                steps = 1000,
+                colors = SliderDefaults.colors(
+                    thumbColor = Color(0xFFE70A0A),
+                    activeTickColor = Color(0xFFE70A0A),
+                    activeTrackColor = Color(0xFFCCC2C2)
+                )
             )
 
+            // 00:00
             Row(modifier = Modifier.fillMaxWidth()) {
                 Text(
                     modifier = Modifier
@@ -208,6 +221,7 @@ fun PlayScreenContent(
                         .weight(1f),
                     text = getTime(seekBarState.value / 1000)
                 )
+                // 03:45
                 Text(
                     modifier = Modifier
                         .width(0.dp)

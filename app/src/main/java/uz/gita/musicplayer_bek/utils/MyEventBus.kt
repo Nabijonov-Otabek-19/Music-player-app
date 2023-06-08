@@ -8,11 +8,10 @@ object MyEventBus {
     var selectMusicPos: Int = -1
     var cursor: Cursor? = null
 
-    var currentTime: Int = 0
     var totalTime: Int = 0
+    var currentTime = MutableStateFlow(0)
+    val currentTimeFlow = MutableStateFlow(0)
 
     var isPlaying = MutableStateFlow(false)
-
     val currentMusicData = MutableStateFlow<MusicData?>(null)
-    val currentTimeFlow = MutableStateFlow(0)
 }
