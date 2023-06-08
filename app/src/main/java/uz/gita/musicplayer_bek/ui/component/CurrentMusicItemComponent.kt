@@ -54,9 +54,11 @@ fun CurrentMusicItemComponent(
             .background(color = MaterialTheme.colorScheme.secondary)
             .clickable { onClick.invoke() }
     ) {
-        Row(modifier = Modifier
-            .wrapContentHeight()
-            .padding(4.dp))
+        Row(
+            modifier = Modifier
+                .wrapContentHeight()
+                .padding(4.dp)
+        )
         {
             Image(
                 painter = painterResource(id = R.drawable.ic_music_disk),
