@@ -74,9 +74,9 @@ class MusicService : Service() {
         view.setTextViewText(R.id.textArtistName, musicData.artist)
 
         if (_musicPlayer != null && !musicPlayer.isPlaying) {
-            view.setImageViewResource(R.id.buttonManage, R.drawable.ic_pause)
-        } else {
             view.setImageViewResource(R.id.buttonManage, R.drawable.ic_play)
+        } else {
+            view.setImageViewResource(R.id.buttonManage, R.drawable.ic_pause)
         }
 
         view.setOnClickPendingIntent(R.id.buttonPrev, createPendingIntent(CommandEnum.PREV))
@@ -141,26 +141,20 @@ class MusicService : Service() {
                 _musicPlayer?.pause()
                 _musicPlayer = MediaPlayer.create(this, Uri.parse(data.data))
                 musicPlayer.seekTo(MyEventBus.currentTime)
-                musicPlayer.setOnCompletionListener {
-                    doneCommand(CommandEnum.NEXT)
-                }
+                musicPlayer.setOnCompletionListener { doneCommand(CommandEnum.NEXT) }
 
                 job?.cancel()
-                job = moveProgress().onEach {
-                    MyEventBus.currentTimeFlow.emit(it)
-                }.launchIn(scope)
-                scope.launch {
-                    MyEventBus.isPlaying.emit(true)
-                }
+                job = moveProgress().onEach { MyEventBus.currentTimeFlow.emit(it) }.launchIn(scope)
+                scope.launch { MyEventBus.isPlaying.emit(true) }
+
                 musicPlayer.start()
             }
 
             CommandEnum.PAUSE -> {
+
                 musicPlayer.pause()
-                scope.launch {
-                    MyEventBus.isPlaying.emit(false)
-                }
                 job?.cancel()
+                scope.launch { MyEventBus.isPlaying.emit(false) }
             }
 
             CommandEnum.CLOSE -> {

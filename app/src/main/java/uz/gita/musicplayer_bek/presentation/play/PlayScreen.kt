@@ -197,8 +197,7 @@ fun PlayScreenContent(
                     MyEventBus.currentTime = newState.toInt()
                 },
                 onValueChangeFinished = {
-                    // val seekDuration = (musicData.duration * seekBarState).toInt()
-//                mediaPlayer?.seekTo(seekDuration)
+                    logger("Slider = onValueChangeFinished")
                 }
             )
 
