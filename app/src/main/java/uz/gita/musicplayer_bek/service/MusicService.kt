@@ -74,9 +74,9 @@ class MusicService : Service() {
         view.setTextViewText(R.id.textArtistName, musicData.artist)
 
         if (_musicPlayer != null && !musicPlayer.isPlaying) {
-            view.setImageViewResource(R.id.buttonManage, R.drawable.ic_play)
+            view.setImageViewResource(R.id.buttonManage, R.drawable.play_button)
         } else {
-            view.setImageViewResource(R.id.buttonManage, R.drawable.ic_pause)
+            view.setImageViewResource(R.id.buttonManage, R.drawable.pause_button)
         }
 
         view.setOnClickPendingIntent(R.id.buttonPrev, createPendingIntent(CommandEnum.PREV))

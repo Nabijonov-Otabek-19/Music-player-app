@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
@@ -68,13 +69,12 @@ fun CurrentMusicItemComponent(
     }
 
     Surface(
-        color = MaterialTheme.colorScheme.secondary,
+        color = Color(0xFFFFE2E2),
         modifier = modifier
             .padding(8.dp)
             .wrapContentHeight()
             .clip(shape = RoundedCornerShape(12.dp))
             .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.secondary)
             .clickable { onClick.invoke() }
     ) {
         Row(
@@ -84,12 +84,13 @@ fun CurrentMusicItemComponent(
         )
         {
             Image(
-                painter = painterResource(id = R.drawable.ic_music_disk),
+                painter = painterResource(id = R.drawable.ic_music3),
                 contentDescription = "MusicDisk",
                 modifier = Modifier
                     .width(56.dp)
                     .height(56.dp)
-                    .background(Color(0XFF988E8E), RoundedCornerShape(8.dp))
+                    .align(Alignment.CenterVertically)
+                //.background(Color(0XFF988E8E), RoundedCornerShape(8.dp))
             )
 
             Column(
@@ -100,7 +101,7 @@ fun CurrentMusicItemComponent(
             ) {
                 Text(
                     text = musicData.title ?: "Unknown name",
-                    color = Color.White,
+                    color = Color.Black,
                     fontSize = TextUnit(18f, TextUnitType.Sp),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
@@ -111,7 +112,7 @@ fun CurrentMusicItemComponent(
 
                 Text(
                     text = musicData.artist ?: "Unknown artist",
-                    color = Color(0XFF988E8E),
+                    color = Color.Gray,
                     fontSize = TextUnit(14f, TextUnitType.Sp),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1
@@ -119,15 +120,16 @@ fun CurrentMusicItemComponent(
             }
 
             Image(
-                colorFilter = ColorFilter.tint(Color.White),
+                //colorFilter = ColorFilter.tint(Color.White),
                 modifier = Modifier
                     .align(Alignment.CenterVertically)
                     .padding(8.dp)
+                    .size(40.dp)
                     .clip(CircleShape)
                     .clickable { onClickManage.invoke() },
                 painter = painterResource(
-                    id = if (mucisIsPlaying.value) R.drawable.ic_pause
-                    else R.drawable.ic_play
+                    id = if (mucisIsPlaying.value) R.drawable.pause_button
+                    else R.drawable.play_button
                 ),
                 contentDescription = null
             )

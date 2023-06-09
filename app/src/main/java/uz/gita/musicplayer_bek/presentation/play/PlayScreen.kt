@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ShapeDefaults
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
@@ -160,7 +161,7 @@ fun PlayScreenContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(0.dp)
-                .weight(1.6f)
+                .weight(1.7f)
         ) {
             Image(
                 modifier = Modifier
@@ -198,8 +199,11 @@ fun PlayScreenContent(
                 .weight(1f)
         ) {
             Slider(
-                value = seekBarValue.toFloat(),
-                onValueChange = { newState -> seekBarValue = newState.toInt() },
+                value = seekBarState.value.toFloat(),
+                onValueChange = { newState ->
+                    seekBarValue = newState.toInt()
+                    eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.UPDATE_SEEKBAR))
+                },
                 onValueChangeFinished = {
                     MyEventBus.currentTime.value = seekBarValue
                     eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.UPDATE_SEEKBAR))
@@ -215,7 +219,11 @@ fun PlayScreenContent(
             )
 
             // 00:00
-            Row(modifier = Modifier.fillMaxWidth()) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp)
+            ) {
                 Text(
                     modifier = Modifier
                         .width(0.dp)
@@ -236,48 +244,44 @@ fun PlayScreenContent(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Bottom
+                verticalAlignment = Alignment.Bottom,
+                horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Image(
                     modifier = Modifier
-                        .rotate(180f)
-                        .width(0.dp)
-                        .weight(1f)
-                        .size(70.dp)
+                        //.rotate(180f)
+                        .size(60.dp)
                         .clip(CircleShape)
                         .clickable {
                             eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.PREV))
                             seekBarValue = 0
                         },
-                    painter = painterResource(id = R.drawable.ic_next),
+                    painter = painterResource(id = R.drawable.previous),
                     contentDescription = null
                 )
 
                 Image(
                     modifier = Modifier
-                        .width(0.dp)
-                        .weight(1f)
-                        .size(70.dp)
+                        .size(60.dp)
                         .clip(CircleShape)
                         .clickable { eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.MANAGE)) },
                     painter = painterResource(
-                        id = if (mucisIsPlaying.value) R.drawable.ic_pause
-                        else R.drawable.ic_play
+                        id = if (mucisIsPlaying.value) R.drawable.pause_button
+                        else R.drawable.play_button
                     ),
                     contentDescription = null
                 )
 
                 Image(
                     modifier = Modifier
-                        .width(0.dp)
-                        .weight(1f)
-                        .size(70.dp)
-                        .clip(CircleShape)
+                        .rotate(180f)
+                        .size(60.dp)
+                        .clip(RoundedCornerShape(100.dp))
                         .clickable {
                             eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.NEXT))
                             seekBarValue = 0
                         },
-                    painter = painterResource(id = R.drawable.ic_next),
+                    painter = painterResource(id = R.drawable.previous),
                     contentDescription = null
                 )
             }

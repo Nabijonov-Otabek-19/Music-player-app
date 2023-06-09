@@ -44,12 +44,12 @@ fun MusicItemComponent(
         Row(modifier = Modifier.wrapContentHeight()) {
 
             Image(
-                painter = painterResource(id = R.drawable.ic_music_disk),
+                painter = painterResource(id = R.drawable.ic_music2),
                 contentDescription = "MusicDisk",
                 modifier = Modifier
                     .width(56.dp)
                     .height(56.dp)
-                    .background(Color(0XFF988E8E), RoundedCornerShape(8.dp))
+                // .background(Color(0XFF988E8E), RoundedCornerShape(8.dp))
             )
 
             Column(
