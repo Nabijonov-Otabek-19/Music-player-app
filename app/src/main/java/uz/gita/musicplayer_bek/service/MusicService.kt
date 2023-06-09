@@ -177,6 +177,8 @@ class MusicService : Service() {
 
             CommandEnum.CLOSE -> {
                 musicPlayer.pause()
+                job?.cancel()
+                scope.launch { MyEventBus.isPlaying.emit(false) }
                 ServiceCompat.stopForeground(this, ServiceCompat.STOP_FOREGROUND_REMOVE)
             }
         }
