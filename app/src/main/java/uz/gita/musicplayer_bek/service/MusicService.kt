@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.IBinder
 import android.widget.RemoteViews
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
 import kotlinx.coroutines.CoroutineScope
@@ -25,6 +26,7 @@ import kotlinx.coroutines.launch
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.CommandEnum
 import uz.gita.musicplayer_bek.data.model.MusicData
+import uz.gita.musicplayer_bek.ui.theme.*
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
 
@@ -61,8 +63,10 @@ class MusicService : Service() {
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setCustomContentView(createRemoteView(musicData))
-            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setColor(Light_Red.toArgb())
+            .setColorized(true)
             .setOnlyAlertOnce(true)
             .setOngoing(true)
         startForeground(1, notificationBuilder.build())

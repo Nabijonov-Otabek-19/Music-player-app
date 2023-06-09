@@ -12,7 +12,7 @@ class PlayViewModel @Inject constructor() :
     ViewModel(), PlayContract.ViewModel {
 
     override val container =
-        container<PlayContract.UIState, PlayContract.SideEffect>(PlayContract.UIState.UpdateState)
+        container<PlayContract.UIState, PlayContract.SideEffect>(PlayContract.UIState.InitState)
 
 
     override fun onEventDispatcher(intent: PlayContract.Intent) {

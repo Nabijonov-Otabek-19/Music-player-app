@@ -8,7 +8,7 @@ import uz.gita.musicplayer_bek.presentation.music.MusicListContract
 import uz.gita.musicplayer_bek.presentation.music.MusicListDirectionImpl
 import uz.gita.musicplayer_bek.presentation.permission.PermissionDirection
 import uz.gita.musicplayer_bek.presentation.permission.PermissionDirectionImpl
-import uz.gita.musicplayer_bek.presentation.play.PlayDirection
+import uz.gita.musicplayer_bek.presentation.play.PlayContract
 import uz.gita.musicplayer_bek.presentation.play.PlayDirectionImpl
 
 @Module
@@ -22,5 +22,5 @@ interface DirectionModule {
     fun bindMusicListDirection(impl : MusicListDirectionImpl) : MusicListContract.MusicListDirection
 
     @Binds
-    fun bindPlayDirection(impl: PlayDirectionImpl) : PlayDirection
+    fun bindPlayDirection(impl: PlayDirectionImpl) : PlayContract.PlayDirection
 }

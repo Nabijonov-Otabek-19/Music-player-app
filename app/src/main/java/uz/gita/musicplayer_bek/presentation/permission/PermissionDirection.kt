@@ -16,5 +16,3 @@ class PermissionDirectionImpl @Inject constructor(
         navigator.replace(MusicListScreen())
     }
 }
-
-

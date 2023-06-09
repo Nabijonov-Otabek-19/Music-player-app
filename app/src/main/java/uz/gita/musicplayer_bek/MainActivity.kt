@@ -30,7 +30,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             MusicPlayerTheme {
-                val screen = if (ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.READ_EXTERNAL_STORAGE) ==
+                val screen = if (ContextCompat.checkSelfPermission(
+                        this@MainActivity,
+                        Manifest.permission.READ_EXTERNAL_STORAGE
+                    ) ==
                     PackageManager.PERMISSION_GRANTED
                 ) MusicListScreen() else PermissionScreen()
 
@@ -44,4 +47,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-

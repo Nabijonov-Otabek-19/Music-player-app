@@ -25,13 +25,19 @@ class PermissionScreen : AndroidScreen() {
     @Composable
     override fun Content() {
         val context = LocalContext.current
-        val viewModel : PermissionContract.ViewModel = getViewModel<PermissionViewModel>()
+        val viewModel: PermissionContract.ViewModel = getViewModel<PermissionViewModel>()
 
         viewModel.collectSideEffect(lifecycleState = Lifecycle.State.CREATED) { sideEffect ->
-            when(sideEffect) {
+            when (sideEffect) {
                 PermissionContract.SideEffect.OpenPermissionDialog -> {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        context.checkPermissions(arrayListOf(Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.POST_NOTIFICATIONS, Manifest.permission.READ_MEDIA_AUDIO)) {
+                        context.checkPermissions(
+                            arrayListOf(
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.POST_NOTIFICATIONS,
+                                Manifest.permission.READ_MEDIA_AUDIO
+                            )
+                        ) {
                             viewModel.onEventDispatcher(PermissionContract.Intent.OpenMusicListScreen)
                         }
                     } else {
@@ -68,13 +74,9 @@ private fun PermissionContent(
 }
 
 @Composable
-@Preview(showBackground = true)
+@Preview(showSystemUi = true)
 private fun PermissionContentPreview() {
     MusicPlayerTheme {
-        PermissionContent(PermissionContract.UIState.InitState){}
+        PermissionContent(PermissionContract.UIState.InitState) {}
     }
 }
-
-
-
-

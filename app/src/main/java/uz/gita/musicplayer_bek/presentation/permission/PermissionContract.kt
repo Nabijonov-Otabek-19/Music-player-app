@@ -20,6 +20,3 @@ sealed class PermissionContract {
         object OpenMusicListScreen: Intent
     }
 }
-
-
-

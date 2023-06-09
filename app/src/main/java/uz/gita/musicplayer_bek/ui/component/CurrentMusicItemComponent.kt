@@ -87,8 +87,9 @@ fun CurrentMusicItemComponent(
                 painter = painterResource(id = R.drawable.ic_music3),
                 contentDescription = "MusicDisk",
                 modifier = Modifier
-                    .width(56.dp)
-                    .height(56.dp)
+                    .padding(8.dp)
+                    .width(45.dp)
+                    .height(45.dp)
                     .align(Alignment.CenterVertically)
                 //.background(Color(0XFF988E8E), RoundedCornerShape(8.dp))
             )

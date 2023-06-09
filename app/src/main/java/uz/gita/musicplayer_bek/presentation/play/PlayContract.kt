@@ -10,7 +10,7 @@ sealed interface PlayContract {
     }
 
     sealed interface UIState {
-        object UpdateState : UIState
+        object InitState : UIState
     }
 
     sealed interface SideEffect {
@@ -19,5 +19,9 @@ sealed interface PlayContract {
 
     sealed interface Intent {
         data class UserAction(val actionEnum: ActionEnum): Intent
+    }
+
+    interface PlayDirection {
+        suspend fun back()
     }
 }

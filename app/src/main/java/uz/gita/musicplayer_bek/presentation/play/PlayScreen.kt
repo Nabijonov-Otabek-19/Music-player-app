@@ -1,46 +1,21 @@
 package uz.gita.musicplayer_bek.presentation.play
 
-import android.content.Context
-import android.content.Intent
+import android.content.*
 import android.os.Build
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ShapeDefaults
-import androidx.compose.material3.Slider
-import androidx.compose.material3.SliderDefaults
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.State
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.*
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import cafe.adriel.voyager.androidx.AndroidScreen
 import cafe.adriel.voyager.hilt.getViewModel
 import org.orbitmvi.orbit.compose.collectAsState
@@ -49,6 +24,7 @@ import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.ActionEnum
 import uz.gita.musicplayer_bek.data.model.CommandEnum
 import uz.gita.musicplayer_bek.service.MusicService
+import uz.gita.musicplayer_bek.ui.theme.Light_Red
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
@@ -56,10 +32,12 @@ import uz.gita.musicplayer_bek.utils.logger
 import java.util.concurrent.TimeUnit
 
 class PlayScreen : AndroidScreen() {
+    @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
         val context = LocalContext.current
         val viewModel: PlayContract.ViewModel = getViewModel<PlayViewModel>()
+        val uiState = viewModel.collectAsState()
 
         viewModel.collectSideEffect { sideEffect ->
             when (sideEffect) {
@@ -87,10 +65,13 @@ class PlayScreen : AndroidScreen() {
 
         MusicPlayerTheme {
             Surface(color = MaterialTheme.colorScheme.background) {
-                val uiState = viewModel.collectAsState()
-                PlayScreenContent(
-                    uiState, viewModel::onEventDispatcher
-                )
+                Scaffold(topBar = { TopBar() }) {
+                    PlayScreenContent(
+                        uiState,
+                        viewModel::onEventDispatcher,
+                        modifier = Modifier.padding(it)
+                    )
+                }
             }
         }
     }
@@ -124,9 +105,32 @@ private fun getTime(time: Int): String {
 }
 
 @Composable
+fun TopBar() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .background(color = Light_Red),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Row {
+            Image(
+                painter = painterResource(id = R.drawable.ic_back),
+                contentDescription = null,
+                modifier = Modifier.clickable {
+                    logger("Back to Music List")
+                }
+            )
+        }
+    }
+}
+
+@Composable
 fun PlayScreenContent(
     uiState: State<PlayContract.UIState>,
-    eventListener: (PlayContract.Intent) -> Unit
+    eventListener: (PlayContract.Intent) -> Unit,
+    modifier: Modifier
 ) {
 
     val musicData = MyEventBus.currentMusicData.collectAsState(
@@ -145,14 +149,8 @@ fun PlayScreenContent(
     val duration = if (hours == 0L) "%02d:%02d".format(minutes, seconds)
     else "%02d:%02d:%02d".format(hours, minutes, seconds) // 03:45
 
-    when (uiState.value) {
-        PlayContract.UIState.UpdateState -> {
-            logger("PlayScreen = UpdateState")
-        }
-    }
-
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(horizontal = 8.dp)
     ) {
@@ -249,7 +247,6 @@ fun PlayScreenContent(
             ) {
                 Image(
                     modifier = Modifier
-                        //.rotate(180f)
                         .size(60.dp)
                         .clip(CircleShape)
                         .clickable {
