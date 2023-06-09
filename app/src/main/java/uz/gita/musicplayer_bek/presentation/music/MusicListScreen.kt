@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -44,7 +45,7 @@ class MusicListScreen : AndroidScreen() {
         }
 
         MusicPlayerTheme {
-            val uiState = viewModel.collectAsState().value
+            val uiState = viewModel.collectAsState()
             MusicListContent(uiState = uiState, eventListener = viewModel::onEventDispatcher)
         }
     }
@@ -60,14 +61,14 @@ private fun startMusicService(context: Context, commandEnum: CommandEnum) {
 
 @Composable
 private fun MusicListContent(
-    uiState: MusicListContract.UIState,
+    uiState: State<MusicListContract.UIState>,
     eventListener: (MusicListContract.Intent) -> Unit
 ) {
     val context = LocalContext.current
 
     Surface(modifier = Modifier.fillMaxSize()) {
         Box {
-            when (uiState) {
+            when (uiState.value) {
                 MusicListContract.UIState.Loading -> {
                     LoadingComponent()
                     eventListener.invoke(MusicListContract.Intent.LoadMusics(context))

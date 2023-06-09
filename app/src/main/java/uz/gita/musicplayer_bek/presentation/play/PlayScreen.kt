@@ -24,6 +24,7 @@ import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -85,7 +86,7 @@ class PlayScreen : AndroidScreen() {
 
         MusicPlayerTheme {
             Surface(color = MaterialTheme.colorScheme.background) {
-                val uiState = viewModel.collectAsState().value
+                val uiState = viewModel.collectAsState()
                 PlayScreenContent(
                     uiState, viewModel::onEventDispatcher
                 )
@@ -123,7 +124,7 @@ private fun getTime(time: Int): String {
 
 @Composable
 fun PlayScreenContent(
-    uiState: PlayContract.UIState,
+    uiState: State<PlayContract.UIState>,
     eventListener: (PlayContract.Intent) -> Unit
 ) {
 
@@ -143,7 +144,7 @@ fun PlayScreenContent(
     val duration = if (hours == 0L) "%02d:%02d".format(minutes, seconds)
     else "%02d:%02d:%02d".format(hours, minutes, seconds) // 03:45
 
-    when (uiState) {
+    when (uiState.value) {
         PlayContract.UIState.UpdateState -> {
             logger("PlayScreen = UpdateState")
         }
@@ -246,7 +247,8 @@ fun PlayScreenContent(
                         .clip(CircleShape)
                         .clickable {
                             eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.PREV))
-                            seekBarValue = 0},
+                            seekBarValue = 0
+                        },
                     painter = painterResource(id = R.drawable.ic_next),
                     contentDescription = null
                 )
@@ -274,7 +276,7 @@ fun PlayScreenContent(
                         .clickable {
                             eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.NEXT))
                             seekBarValue = 0
-                                   },
+                        },
                     painter = painterResource(id = R.drawable.ic_next),
                     contentDescription = null
                 )
