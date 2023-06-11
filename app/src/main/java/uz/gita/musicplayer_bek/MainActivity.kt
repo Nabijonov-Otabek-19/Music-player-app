@@ -2,6 +2,8 @@ package uz.gita.musicplayer_bek
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,10 +15,11 @@ import cafe.adriel.voyager.navigator.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import uz.gita.musicplayer_bek.broadcast.CallBroadcastReceiver
+import uz.gita.musicplayer_bek.navigation.NavigatorHandler
 import uz.gita.musicplayer_bek.presentation.music.MusicListScreen
 import uz.gita.musicplayer_bek.presentation.permission.PermissionScreen
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
-import uz.gita.musicplayer_bek.navigation.NavigatorHandler
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -24,6 +27,9 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var navigatorHandler: NavigatorHandler
+
+    @Inject
+    lateinit var receiver: CallBroadcastReceiver
 
     @SuppressLint("FlowOperatorInvokedInComposition", "CoroutineCreationDuringComposition")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -43,7 +49,19 @@ class MainActivity : ComponentActivity() {
                         .launchIn(lifecycleScope)
                     CurrentScreen()
                 }
+
+                val intentFilter = IntentFilter().apply {
+                    addAction(Intent.ACTION_CALL)
+                    addAction(Intent.ACTION_NEW_OUTGOING_CALL)
+                }
+
+                this.registerReceiver(receiver, intentFilter)
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(receiver)
     }
 }
