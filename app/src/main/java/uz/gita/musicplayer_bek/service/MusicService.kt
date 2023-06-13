@@ -23,6 +23,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import uz.gita.musicplayer_bek.MainActivity
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.CommandEnum
 import uz.gita.musicplayer_bek.data.model.MusicData
@@ -60,11 +61,20 @@ class MusicService : Service() {
     }
 
     private fun createNotification(musicData: MusicData) {
+
+        val myIntent = Intent(this, MainActivity::class.java).apply {
+            Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+
+        val myPendingIntent =
+            PendingIntent.getActivity(this, 1, myIntent, PendingIntent.FLAG_IMMUTABLE)
+
         val notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setCustomContentView(createRemoteView(musicData))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setContentIntent(myPendingIntent)
             .setColor(Light_Red.toArgb())
             .setColorized(true)
             .setOnlyAlertOnce(true)
