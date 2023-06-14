@@ -1,8 +1,5 @@
 package uz.gita.musicplayer_bek.presentation.music
 
-import android.content.Context
-import android.content.Intent
-import android.os.Build
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,7 +26,6 @@ import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.gita.musicplayer_bek.MainActivity
 import uz.gita.musicplayer_bek.data.model.CommandEnum
-import uz.gita.musicplayer_bek.service.MusicService
 import uz.gita.musicplayer_bek.ui.component.CurrentMusicItemComponent
 import uz.gita.musicplayer_bek.ui.component.LoadingComponent
 import uz.gita.musicplayer_bek.ui.component.MusicItemComponent
@@ -37,6 +33,7 @@ import uz.gita.musicplayer_bek.ui.theme.Light_Red
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
+import uz.gita.musicplayer_bek.utils.base.startMusicService
 
 class MusicListScreen : AndroidScreen() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -49,11 +46,7 @@ class MusicListScreen : AndroidScreen() {
         viewModel.collectSideEffect { sideEffect ->
             when (sideEffect) {
                 MusicListContract.SideEffect.StartMusicService -> {
-                    val intent = Intent(activity, MusicService::class.java)
-                    intent.putExtra("COMMAND", CommandEnum.PLAY)
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        activity.startForegroundService(intent)
-                    } else activity.startService(intent)
+                    startMusicService(activity, CommandEnum.PLAY)
                 }
             }
         }
@@ -73,15 +66,6 @@ class MusicListScreen : AndroidScreen() {
         }
     }
 }
-
-private fun startMusicService(context: Context, commandEnum: CommandEnum) {
-    val intent = Intent(context, MusicService::class.java)
-    intent.putExtra("COMMAND", commandEnum)
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        context.startForegroundService(intent)
-    } else context.startService(intent)
-}
-
 
 @Composable
 private fun MusicListContent(

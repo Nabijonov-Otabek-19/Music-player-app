@@ -1,7 +1,6 @@
 package uz.gita.musicplayer_bek.presentation.play
 
 import android.content.*
-import android.os.Build
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -23,11 +22,12 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.ActionEnum
 import uz.gita.musicplayer_bek.data.model.CommandEnum
-import uz.gita.musicplayer_bek.service.MusicService
 import uz.gita.musicplayer_bek.ui.theme.Light_Red
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
+import uz.gita.musicplayer_bek.utils.base.getTime
+import uz.gita.musicplayer_bek.utils.base.startMusicService
 import uz.gita.musicplayer_bek.utils.logger
 import java.util.concurrent.TimeUnit
 
@@ -75,33 +75,6 @@ class PlayScreen : AndroidScreen() {
             }
         }
     }
-
-    private fun startMusicService(context: Context, commandEnum: CommandEnum) {
-        val intent = Intent(context, MusicService::class.java)
-        intent.putExtra("COMMAND", commandEnum)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            context.startForegroundService(intent)
-        } else context.startService(intent)
-    }
-}
-
-private fun getTime(time: Int): String {
-    val hour = time / 3600
-    val minute = (time % 3600) / 60
-    val second = time % 60
-
-    val hourText = if (hour > 0) {
-        if (hour < 10) "0$hour:"
-        else "$hour:"
-    } else ""
-
-    val minuteText = if (minute < 10) "0$minute:"
-    else "$minute:"
-
-    val secondText = if (second < 10) "0$second"
-    else "$second"
-
-    return "$hourText$minuteText$secondText"
 }
 
 @Composable

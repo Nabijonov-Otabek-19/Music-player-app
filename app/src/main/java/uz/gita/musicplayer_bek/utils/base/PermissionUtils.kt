@@ -2,10 +2,8 @@ package uz.gita.musicplayer_bek.utils.base
 
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
-import androidx.core.app.ActivityCompat
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
@@ -34,10 +32,4 @@ fun Context.checkPermissions(array: List<String>, blockSuccess: () -> Unit) {
                 startActivity(intent)
             }
         }).check()
-}
-
-fun Context.checkCallPermissions(vararg permissions: String): Boolean {
-    return listOf(permissions.forEach {
-        ActivityCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
-    }).any()
 }
