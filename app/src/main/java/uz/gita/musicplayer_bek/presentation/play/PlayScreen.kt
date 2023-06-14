@@ -22,7 +22,6 @@ import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.ActionEnum
 import uz.gita.musicplayer_bek.data.model.CommandEnum
-import uz.gita.musicplayer_bek.ui.theme.Light_Red
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
@@ -82,8 +81,7 @@ fun TopBar() {
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
-            .background(color = Light_Red),
+            .height(56.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
