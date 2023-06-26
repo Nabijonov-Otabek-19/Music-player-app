@@ -5,10 +5,12 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
+import android.content.IntentFilter
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.IBinder
+import android.telephony.TelephonyManager
 import android.widget.RemoteViews
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
@@ -25,11 +27,13 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import uz.gita.musicplayer_bek.MainActivity
 import uz.gita.musicplayer_bek.R
+import uz.gita.musicplayer_bek.broadcast.CallReceiver
 import uz.gita.musicplayer_bek.data.model.CommandEnum
 import uz.gita.musicplayer_bek.data.model.MusicData
 import uz.gita.musicplayer_bek.ui.theme.*
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
+import javax.inject.Inject
 
 class MusicService : Service() {
 
@@ -37,6 +41,9 @@ class MusicService : Service() {
         const val CHANNEL_ID = "My music player"
         const val CHANNEL_NAME = "Music player"
     }
+
+    @Inject
+    lateinit var callReceiver: CallReceiver
 
     private var _musicPlayer: MediaPlayer? = null
     private val musicPlayer get() = _musicPlayer!!
@@ -48,6 +55,9 @@ class MusicService : Service() {
     override fun onCreate() {
         super.onCreate()
         createChannel()
+
+        val intentFilter = IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
+        registerReceiver(callReceiver, intentFilter)
     }
 
     private fun createChannel() {
@@ -199,5 +209,10 @@ class MusicService : Service() {
             emit(i)
             delay(1000)
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        unregisterReceiver(callReceiver)
     }
 }

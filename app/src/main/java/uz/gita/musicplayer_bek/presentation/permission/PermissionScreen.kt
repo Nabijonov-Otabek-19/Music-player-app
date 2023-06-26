@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.Lifecycle
 import cafe.adriel.voyager.androidx.AndroidScreen
 import cafe.adriel.voyager.hilt.getViewModel
@@ -35,13 +34,19 @@ class PermissionScreen : AndroidScreen() {
                             arrayListOf(
                                 Manifest.permission.READ_EXTERNAL_STORAGE,
                                 Manifest.permission.POST_NOTIFICATIONS,
-                                Manifest.permission.READ_MEDIA_AUDIO
+                                Manifest.permission.READ_MEDIA_AUDIO,
+                                Manifest.permission.READ_PHONE_STATE
                             )
                         ) {
                             viewModel.onEventDispatcher(PermissionContract.Intent.OpenMusicListScreen)
                         }
                     } else {
-                        context.checkPermissions(arrayListOf(Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                        context.checkPermissions(
+                            arrayListOf(
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_PHONE_STATE
+                            )
+                        ) {
                             viewModel.onEventDispatcher(PermissionContract.Intent.OpenMusicListScreen)
                         }
                     }
@@ -70,13 +75,5 @@ private fun PermissionContent(
                 Text(text = "Request permission")
             }
         }
-    }
-}
-
-@Composable
-@Preview(showSystemUi = true)
-private fun PermissionContentPreview() {
-    MusicPlayerTheme {
-        PermissionContent(PermissionContract.UIState.InitState) {}
     }
 }
