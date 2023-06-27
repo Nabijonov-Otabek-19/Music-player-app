@@ -7,9 +7,8 @@ import android.telephony.TelephonyManager
 import uz.gita.musicplayer_bek.data.model.CommandEnum
 import uz.gita.musicplayer_bek.utils.base.startMusicService
 import uz.gita.musicplayer_bek.utils.logger
-import javax.inject.Inject
 
-class CallReceiver @Inject constructor() : BroadcastReceiver() {
+class CallReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == TelephonyManager.ACTION_PHONE_STATE_CHANGED) {
@@ -19,11 +18,13 @@ class CallReceiver @Inject constructor() : BroadcastReceiver() {
                 TelephonyManager.CALL_STATE_RINGING -> {
                     // Handle incoming call and pause music
                     startMusicService(context, CommandEnum.PAUSE)
+                    logger("Incoming call")
                 }
 
                 TelephonyManager.CALL_STATE_OFFHOOK -> {
                     // Handle outgoing call and pause music
                     startMusicService(context, CommandEnum.PAUSE)
+                    logger("Outcoming call")
                 }
 
                 TelephonyManager.CALL_STATE_IDLE -> {

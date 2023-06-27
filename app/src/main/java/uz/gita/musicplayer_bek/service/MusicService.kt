@@ -15,25 +15,17 @@ import android.widget.RemoteViews
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.*
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.*
 import uz.gita.musicplayer_bek.MainActivity
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.broadcast.CallReceiver
 import uz.gita.musicplayer_bek.data.model.CommandEnum
 import uz.gita.musicplayer_bek.data.model.MusicData
-import uz.gita.musicplayer_bek.ui.theme.*
+import uz.gita.musicplayer_bek.ui.theme.Light_Red
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
-import javax.inject.Inject
 
 class MusicService : Service() {
 
@@ -42,8 +34,7 @@ class MusicService : Service() {
         const val CHANNEL_NAME = "Music player"
     }
 
-    @Inject
-    lateinit var callReceiver: CallReceiver
+    private val callReceiver = CallReceiver()
 
     private var _musicPlayer: MediaPlayer? = null
     private val musicPlayer get() = _musicPlayer!!
@@ -55,7 +46,6 @@ class MusicService : Service() {
     override fun onCreate() {
         super.onCreate()
         createChannel()
-
         val intentFilter = IntentFilter(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
         registerReceiver(callReceiver, intentFilter)
     }
