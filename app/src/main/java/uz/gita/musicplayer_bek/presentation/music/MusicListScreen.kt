@@ -1,5 +1,7 @@
 package uz.gita.musicplayer_bek.presentation.music
 
+import android.Manifest
+import android.os.Build
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -22,6 +24,7 @@ import uz.gita.musicplayer_bek.ui.component.LoadingComponent
 import uz.gita.musicplayer_bek.ui.component.MusicItemComponent
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 import uz.gita.musicplayer_bek.utils.MyEventBus
+import uz.gita.musicplayer_bek.utils.base.checkPermissions
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
 import uz.gita.musicplayer_bek.utils.base.startMusicService
 
@@ -37,6 +40,30 @@ class MusicListScreen : AndroidScreen() {
             when (sideEffect) {
                 MusicListContract.SideEffect.StartMusicService -> {
                     startMusicService(activity, CommandEnum.PLAY)
+                }
+
+                MusicListContract.SideEffect.OpenPermissionDialog -> {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        activity.checkPermissions(
+                            arrayListOf(
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.POST_NOTIFICATIONS,
+                                Manifest.permission.READ_MEDIA_AUDIO,
+                                Manifest.permission.READ_PHONE_STATE
+                            )
+                        ) {
+                            viewModel.onEventDispatcher(MusicListContract.Intent.LoadMusics(activity))
+                        }
+                    } else {
+                        activity.checkPermissions(
+                            arrayListOf(
+                                Manifest.permission.READ_EXTERNAL_STORAGE,
+                                Manifest.permission.READ_PHONE_STATE
+                            )
+                        ) {
+                            viewModel.onEventDispatcher(MusicListContract.Intent.LoadMusics(activity))
+                        }
+                    }
                 }
             }
         }
@@ -70,7 +97,7 @@ private fun MusicListContent(
             when (uiState.value) {
                 MusicListContract.UIState.Loading -> {
                     LoadingComponent()
-                    eventListener.invoke(MusicListContract.Intent.LoadMusics(context))
+                    eventListener.invoke(MusicListContract.Intent.RequestPermission)
                 }
 
                 MusicListContract.UIState.PreparedData -> {
