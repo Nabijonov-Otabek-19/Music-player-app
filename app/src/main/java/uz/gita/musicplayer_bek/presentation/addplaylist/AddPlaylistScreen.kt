@@ -7,7 +7,7 @@ import androidx.compose.ui.Modifier
 import uz.gita.musicplayer_bek.navigation.AppScreen
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 
-class AddPlaylistScreen: AppScreen() {
+class AddPlaylistScreen : AppScreen() {
     @Composable
     override fun Content() {
 
@@ -21,6 +21,6 @@ class AddPlaylistScreen: AppScreen() {
 }
 
 @Composable
-fun AddPlaylistScreenContent(){
+fun AddPlaylistScreenContent() {
 
 }

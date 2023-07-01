@@ -85,6 +85,15 @@ dependencies {
     implementation("org.orbit-mvi:orbit-viewmodel:4.6.1")
     implementation("org.orbit-mvi:orbit-compose:4.6.1")
 
+    // Room
+    implementation 'androidx.room:room-runtime:2.5.2'
+    implementation 'androidx.room:room-ktx:2.5.2'
+    kapt 'androidx.room:room-compiler:2.5.2'
+
     // Android Runtime Permission Library
     implementation 'com.karumi:dexter:6.2.3'
+
+    // Coroutine
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1"
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1'
 }
