@@ -24,5 +24,5 @@ object RoomModule {
     ).allowMainThreadQueries().build()
 
     @[Provides Singleton]
-    fun provideContactDao(db: AppDatabase): MusicDao = db.getMusicDao()
+    fun provideMusicsDao(db: AppDatabase): MusicDao = db.getMusicDao()
 }

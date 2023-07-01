@@ -42,6 +42,10 @@ class MusicListViewModel @Inject constructor(
                     .launchIn(viewModelScope)
             }
 
+            MusicListContract.Intent.OpenAddPlayListScreen -> {
+                viewModelScope.launch { direction.navigateToAddPlayListScreen() }
+            }
+
             MusicListContract.Intent.PlayMusic -> {
                 intent { postSideEffect(MusicListContract.SideEffect.StartMusicService) }
             }

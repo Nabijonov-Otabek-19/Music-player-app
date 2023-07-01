@@ -1,6 +1,7 @@
 package uz.gita.musicplayer_bek.presentation.addplaylist
 
 import org.orbitmvi.orbit.ContainerHost
+import uz.gita.musicplayer_bek.data.model.PlayListData
 
 interface AddPlaylistContract {
     interface ViewModel : ContainerHost<UIState, SideEffect> {
@@ -9,7 +10,7 @@ interface AddPlaylistContract {
 
     sealed interface UIState {
         object Loading : UIState
-        object PreparedData : UIState
+        data class PreparedData(val playListData: List<PlayListData>) : UIState
     }
 
     sealed interface SideEffect {
@@ -17,7 +18,9 @@ interface AddPlaylistContract {
     }
 
     sealed interface Intent {
+        object LoadPlayLists : Intent
         object OpenPlaylistScreen : Intent
+        data class AddPlayList(val playListData: PlayListData): Intent
     }
 
     interface PlaylistDirection {

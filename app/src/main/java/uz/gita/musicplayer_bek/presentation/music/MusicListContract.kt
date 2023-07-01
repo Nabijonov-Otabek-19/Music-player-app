@@ -23,10 +23,12 @@ sealed interface MusicListContract {
         data class LoadMusics(val context: Context) : Intent
         object PlayMusic : Intent
         object OpenPlayScreen : Intent
-        object RequestPermission: Intent
+        object OpenAddPlayListScreen : Intent
+        object RequestPermission : Intent
     }
 
     interface MusicListDirection {
         suspend fun navigateToPlayScreen()
+        suspend fun navigateToAddPlayListScreen()
     }
 }

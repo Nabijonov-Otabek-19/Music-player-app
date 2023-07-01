@@ -3,6 +3,7 @@ package uz.gita.musicplayer_bek.presentation.music
 import android.Manifest
 import android.os.Build
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
@@ -71,7 +72,7 @@ class MusicListScreen : AndroidScreen() {
         MusicPlayerTheme {
             Surface(modifier = Modifier.fillMaxSize()) {
                 Scaffold(
-                    topBar = { TopBar() }
+                    topBar = { TopBar(viewModel::onEventDispatcher) }
                 ) {
                     MusicListContent(
                         uiState = uiState,
@@ -132,7 +133,7 @@ private fun MusicListContent(
 }
 
 @Composable
-fun TopBar() {
+fun TopBar(eventListener: (MusicListContract.Intent) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -149,6 +150,9 @@ fun TopBar() {
             text = "Music List"
         )
 
-        Image(painter = painterResource(id = R.drawable.ic_search), contentDescription = null)
+        Image(
+            modifier = Modifier.clickable { eventListener.invoke(MusicListContract.Intent.OpenAddPlayListScreen) },
+            painter = painterResource(id = R.drawable.ic_playlist_add),
+            contentDescription = null)
     }
 }
