@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.orbitmvi.orbit.syntax.simple.intent
+import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import org.orbitmvi.orbit.syntax.simple.reduce
 import org.orbitmvi.orbit.viewmodel.container
 import uz.gita.musicplayer_bek.domain.repository.AppRepository
@@ -27,6 +28,14 @@ class AddPlaylistViewModel @Inject constructor(
                 viewModelScope.launch {
                     direction.navigateToPlaylistScreen()
                 }
+            }
+
+            is AddPlaylistContract.Intent.DeletePlayList -> {
+                repository.deletePlayList(intent.playListData)
+            }
+
+            AddPlaylistContract.Intent.OpenDialog -> {
+                intent { postSideEffect(AddPlaylistContract.SideEffect.ShowDialog) }
             }
 
             AddPlaylistContract.Intent.LoadPlayLists -> {

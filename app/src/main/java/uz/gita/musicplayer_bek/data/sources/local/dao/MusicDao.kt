@@ -19,7 +19,10 @@ interface MusicDao {
     fun addPlayList(playListEntity: PlayListEntity)
 
     @Delete
-    fun delete(musicEntity: MusicEntity)
+    fun deleteMusic(musicEntity: MusicEntity)
+
+    @Delete
+    fun deletePlayList(playListEntity: PlayListEntity)
 
     @Query("Select * from musics")
     fun retrieveAllMusics(): Flow<List<MusicEntity>>

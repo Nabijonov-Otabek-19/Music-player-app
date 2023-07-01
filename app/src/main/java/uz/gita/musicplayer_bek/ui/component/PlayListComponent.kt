@@ -13,7 +13,11 @@ import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.PlayListData
 
 @Composable
-fun PlayListComponent(playListData: PlayListData) {
+fun PlayListComponent(
+    playListData: PlayListData,
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
+) {
     Card(shape = CardDefaults.outlinedShape) {
         Column(
             modifier = Modifier.padding(8.dp)
@@ -39,5 +43,5 @@ fun PlayListComponent(playListData: PlayListData) {
 @Composable
 @Preview(showBackground = true)
 fun PlayListComponentPreview() {
-    PlayListComponent(PlayListData(0, "Retro"))
+    PlayListComponent(PlayListData(0, "Retro"), {}, {})
 }

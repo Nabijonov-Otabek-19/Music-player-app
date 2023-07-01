@@ -14,13 +14,15 @@ interface AddPlaylistContract {
     }
 
     sealed interface SideEffect {
-        object OpenPermissionDialog : SideEffect
+        object ShowDialog : SideEffect
     }
 
     sealed interface Intent {
         object LoadPlayLists : Intent
         object OpenPlaylistScreen : Intent
-        data class AddPlayList(val playListData: PlayListData): Intent
+        object OpenDialog : Intent
+        data class DeletePlayList(val playListData: PlayListData) : Intent
+        data class AddPlayList(val playListData: PlayListData) : Intent
     }
 
     interface PlaylistDirection {

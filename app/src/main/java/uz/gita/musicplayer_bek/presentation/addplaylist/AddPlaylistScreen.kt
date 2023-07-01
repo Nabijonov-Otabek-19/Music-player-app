@@ -14,6 +14,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.hilt.getViewModel
 import org.orbitmvi.orbit.compose.collectAsState
+import org.orbitmvi.orbit.compose.collectSideEffect
 import uz.gita.musicplayer_bek.navigation.AppScreen
 import uz.gita.musicplayer_bek.ui.component.LoadingComponent
 import uz.gita.musicplayer_bek.ui.component.PlayListComponent
@@ -37,6 +38,14 @@ class AddPlaylistScreen : AppScreen() {
                         onEventDispatcher = viewModel::onEventDispatcher,
                         Modifier.padding(it)
                     )
+                }
+            }
+        }
+
+        viewModel.collectSideEffect { sideEffect ->
+            when (sideEffect) {
+                AddPlaylistContract.SideEffect.ShowDialog -> {
+                    // show add playlist dialog
                 }
             }
         }
@@ -67,7 +76,15 @@ fun AddPlaylistScreenContent(
                         items(data.size) {
                             Spacer(modifier = Modifier.size(8.dp))
 
-                            PlayListComponent(playListData = data[it])
+                            PlayListComponent(
+                                playListData = data[it],
+                                onClick = { onEventDispatcher(AddPlaylistContract.Intent.OpenPlaylistScreen) },
+                                onLongClick = {
+                                    onEventDispatcher(
+                                        AddPlaylistContract.Intent.DeletePlayList(data[it])
+                                    )
+                                }
+                            )
                         }
                     })
             }
@@ -80,7 +97,7 @@ fun AddPlaylistScreenContent(
             shape = RoundedCornerShape(16.dp),
             containerColor = Color.Blue,
             onClick = {
-                onEventDispatcher(AddPlaylistContract.Intent.OpenPlaylistScreen)
+                onEventDispatcher(AddPlaylistContract.Intent.OpenDialog)
             }) {
             Icon(Icons.Default.Add, contentDescription = "Add", tint = Color.White)
         }

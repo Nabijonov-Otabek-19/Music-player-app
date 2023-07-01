@@ -19,6 +19,14 @@ class AppRepositoryImpl @Inject constructor(
         dao.addPlayList(playListData.toEntity())
     }
 
+    override fun deleteMusic(musicData: MusicData) {
+        dao.deleteMusic(musicData.toEntity())
+    }
+
+    override fun deletePlayList(playListData: PlayListData) {
+        dao.deletePlayList(playListData.toEntity())
+    }
+
     override fun getAllMusics(): Flow<List<MusicData>> =
         dao.retrieveAllMusics().map { list ->
             list.map { musicEntity ->

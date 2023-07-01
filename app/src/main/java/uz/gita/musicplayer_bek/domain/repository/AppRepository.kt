@@ -9,6 +9,9 @@ interface AppRepository {
     fun addMusic(musicData: MusicData)
     fun addPlayList(playListData: PlayListData)
 
+    fun deleteMusic(musicData: MusicData)
+    fun deletePlayList(playListData: PlayListData)
+
     fun getAllMusics(): Flow<List<MusicData>>
     fun getAllPlaylists(): Flow<List<PlayListData>>
 }
