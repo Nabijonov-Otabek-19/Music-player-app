@@ -6,17 +6,17 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import kotlinx.coroutines.flow.Flow
-import uz.gita.musicplayer_bek.data.model.MusicData
+import uz.gita.musicplayer_bek.data.sources.local.entity.MusicEntity
 
 @Dao
 interface MusicDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun add(musicData: MusicData)
+    fun add(musicEntity: MusicEntity)
 
     @Delete
-    fun delete(musicData: MusicData)
+    fun delete(musicEntity: MusicEntity)
 
     @Query("Select * from musics")
-    fun retrieveAllContacts(): Flow<List<MusicData>>
+    fun retrieveAllMusics(): Flow<List<MusicEntity>>
 }
