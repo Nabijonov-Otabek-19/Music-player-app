@@ -13,6 +13,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
 import cafe.adriel.voyager.androidx.AndroidScreen
 import cafe.adriel.voyager.hilt.getViewModel
@@ -22,6 +23,7 @@ import uz.gita.musicplayer_bek.data.model.ActionEnum
 import uz.gita.musicplayer_bek.data.model.CommandEnum
 import uz.gita.musicplayer_bek.data.model.MusicData
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
+import uz.gita.musicplayer_bek.ui.theme.Red
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
 import uz.gita.musicplayer_bek.utils.base.getTime
@@ -188,10 +190,10 @@ fun PlayScreenContent(
             Image(
                 modifier = Modifier
                     .size(250.dp)
-                    .padding(top = 70.dp)
-                    .background(Color(0XFF988E8E), RoundedCornerShape(4.dp))
+                    .padding(top = 10.dp, bottom = 12.dp)
+                    //.background(Color(0XFF988E8E), RoundedCornerShape(4.dp))
                     .align(Alignment.CenterHorizontally),
-                painter = painterResource(id = R.drawable.ic_music_disk),
+                painter = painterResource(id = R.drawable.ic_play_screen),
                 contentDescription = null
             )
 
@@ -201,7 +203,9 @@ fun PlayScreenContent(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 text = musicData.value!!.title ?: "Unknown",
-                fontSize = 24.sp
+                fontSize = 20.sp,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1
             )
 
             Text(
@@ -234,8 +238,8 @@ fun PlayScreenContent(
                 valueRange = 0f..musicData.value!!.duration.toFloat(),
                 steps = 1000,
                 colors = SliderDefaults.colors(
-                    thumbColor = Color(0xFFE70A0A),
-                    activeTickColor = Color(0xFFE70A0A),
+                    thumbColor = Red,
+                    activeTickColor = Red,
                     activeTrackColor = Color(0xFFCCC2C2)
                 )
             )
