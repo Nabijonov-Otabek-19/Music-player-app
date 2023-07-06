@@ -40,4 +40,9 @@ class AppRepositoryImpl @Inject constructor(
                 playListEntity.toData()
             }
         }
+
+    override fun checkMusicIsSaved(musicData: MusicData): Boolean {
+        val data = dao.checkMusicSaved(musicData.data ?: "")
+        return data != null
+    }
 }

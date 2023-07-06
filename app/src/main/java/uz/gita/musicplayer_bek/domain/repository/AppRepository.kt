@@ -9,6 +9,8 @@ interface AppRepository {
     fun addMusic(musicData: MusicData)
     fun addPlayList(playListData: PlayListData)
 
+    fun checkMusicIsSaved(musicData: MusicData): Boolean
+
     fun deleteMusic(musicData: MusicData)
     fun deletePlayList(playListData: PlayListData)
 

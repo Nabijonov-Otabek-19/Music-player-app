@@ -2,6 +2,7 @@ package uz.gita.musicplayer_bek.presentation.play
 
 import org.orbitmvi.orbit.ContainerHost
 import uz.gita.musicplayer_bek.data.model.ActionEnum
+import uz.gita.musicplayer_bek.data.model.MusicData
 
 sealed interface PlayContract {
 
@@ -11,17 +12,22 @@ sealed interface PlayContract {
 
     sealed interface UIState {
         object InitState : UIState
+        data class CheckMusic(val isSaved: Boolean) : UIState
     }
 
     sealed interface SideEffect {
-        data class UserAction(val actionEnum: ActionEnum): SideEffect
+        data class UserAction(val actionEnum: ActionEnum) : SideEffect
     }
 
     sealed interface Intent {
-        data class UserAction(val actionEnum: ActionEnum): Intent
+        data class UserAction(val actionEnum: ActionEnum) : Intent
+        data class SaveMusic(val musicData: MusicData) : Intent
+        data class DeleteMusic(val musicData: MusicData) : Intent
+        data class CheckMusic(val musicData: MusicData) : Intent
+        object Back : Intent
     }
 
-    interface PlayDirection {
+    interface Direction {
         suspend fun back()
     }
 }

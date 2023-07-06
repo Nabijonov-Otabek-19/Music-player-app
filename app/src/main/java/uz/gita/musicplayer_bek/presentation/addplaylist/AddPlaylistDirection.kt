@@ -6,7 +6,7 @@ import javax.inject.Inject
 
 class AddPlaylistDirection @Inject constructor(
     private val appNavigator: AppNavigator
-) : AddPlaylistContract.PlaylistDirection {
+) : AddPlaylistContract.Direction {
 
     override suspend fun navigateToPlaylistScreen() {
         appNavigator.navigateTo(PlayListScreen())

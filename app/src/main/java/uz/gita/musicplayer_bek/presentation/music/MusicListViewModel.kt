@@ -42,8 +42,12 @@ class MusicListViewModel @Inject constructor(
                     .launchIn(viewModelScope)
             }
 
-            MusicListContract.Intent.OpenAddPlayListScreen -> {
+            /*MusicListContract.Intent.OpenAddPlayListScreen -> {
                 viewModelScope.launch { direction.navigateToAddPlayListScreen() }
+            }*/
+
+            MusicListContract.Intent.OpenPlayListScreen ->{
+                viewModelScope.launch { direction.navigateToPlayListScreen() }
             }
 
             MusicListContract.Intent.PlayMusic -> {

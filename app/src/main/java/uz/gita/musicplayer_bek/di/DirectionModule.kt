@@ -9,7 +9,9 @@ import uz.gita.musicplayer_bek.presentation.addplaylist.AddPlaylistDirection
 import uz.gita.musicplayer_bek.presentation.music.MusicListContract
 import uz.gita.musicplayer_bek.presentation.music.MusicListDirectionImpl
 import uz.gita.musicplayer_bek.presentation.play.PlayContract
-import uz.gita.musicplayer_bek.presentation.play.PlayDirectionImpl
+import uz.gita.musicplayer_bek.presentation.play.PlayDirection
+import uz.gita.musicplayer_bek.presentation.playlist.PlayListContract
+import uz.gita.musicplayer_bek.presentation.playlist.PlayListDirection
 
 @Module
 @InstallIn(ViewModelComponent::class)
@@ -19,8 +21,11 @@ interface DirectionModule {
     fun bindMusicListDirection(impl: MusicListDirectionImpl): MusicListContract.MusicListDirection
 
     @Binds
-    fun bindPlayDirection(impl: PlayDirectionImpl): PlayContract.PlayDirection
+    fun bindPlayDirection(impl: PlayDirection): PlayContract.Direction
 
     @Binds
-    fun bindAddPlaylistDirection(impl: AddPlaylistDirection): AddPlaylistContract.PlaylistDirection
+    fun bindAddPlaylistDirection(impl: AddPlaylistDirection): AddPlaylistContract.Direction
+
+    @Binds
+    fun bindPlayListDirection(imple: PlayListDirection): PlayListContract.Direction
 }

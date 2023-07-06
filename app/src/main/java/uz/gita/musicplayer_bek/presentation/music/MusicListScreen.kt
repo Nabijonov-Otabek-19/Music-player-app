@@ -111,6 +111,9 @@ private fun MusicListContent(
                                         MyEventBus.selectMusicPos = pos
                                         eventListener.invoke(MusicListContract.Intent.PlayMusic)
                                         eventListener.invoke(MusicListContract.Intent.OpenPlayScreen)
+                                    },
+                                    onLongClick = {
+                                        // nothing to do
                                     }
                                 )
                             }
@@ -151,8 +154,9 @@ fun TopBar(eventListener: (MusicListContract.Intent) -> Unit) {
         )
 
         Image(
-            modifier = Modifier.clickable { eventListener.invoke(MusicListContract.Intent.OpenAddPlayListScreen) },
-            painter = painterResource(id = R.drawable.ic_playlist_add),
-            contentDescription = null)
+            modifier = Modifier.clickable { eventListener.invoke(MusicListContract.Intent.OpenPlayListScreen) },
+            painter = painterResource(id = R.drawable.ic_fav),
+            contentDescription = null
+        )
     }
 }

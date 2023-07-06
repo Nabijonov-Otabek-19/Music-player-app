@@ -3,8 +3,7 @@ package uz.gita.musicplayer_bek.presentation.play
 import android.content.*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
@@ -17,17 +16,18 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
 import cafe.adriel.voyager.androidx.AndroidScreen
 import cafe.adriel.voyager.hilt.getViewModel
-import org.orbitmvi.orbit.compose.collectAsState
-import org.orbitmvi.orbit.compose.collectSideEffect
+import org.orbitmvi.orbit.compose.*
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.ActionEnum
 import uz.gita.musicplayer_bek.data.model.CommandEnum
+import uz.gita.musicplayer_bek.data.model.MusicData
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
 import uz.gita.musicplayer_bek.utils.base.getTime
 import uz.gita.musicplayer_bek.utils.base.startMusicService
 import uz.gita.musicplayer_bek.utils.logger
+import uz.gita.musicplayer_bek.utils.toast
 import java.util.concurrent.TimeUnit
 
 class PlayScreen : AndroidScreen() {
@@ -37,6 +37,9 @@ class PlayScreen : AndroidScreen() {
         val context = LocalContext.current
         val viewModel: PlayContract.ViewModel = getViewModel<PlayViewModel>()
         val uiState = viewModel.collectAsState()
+
+        val musicData = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
+        viewModel.onEventDispatcher(PlayContract.Intent.CheckMusic(musicData))
 
         viewModel.collectSideEffect { sideEffect ->
             when (sideEffect) {
@@ -64,11 +67,12 @@ class PlayScreen : AndroidScreen() {
 
         MusicPlayerTheme {
             Surface(color = MaterialTheme.colorScheme.background) {
-                Scaffold(topBar = { TopBar() }) {
+                Scaffold(topBar = { TopBar(uiState, viewModel::onEventDispatcher, musicData) }) {
                     PlayScreenContent(
                         uiState,
                         viewModel::onEventDispatcher,
-                        modifier = Modifier.padding(it)
+                        modifier = Modifier.padding(it),
+                        musicData
                     )
                 }
             }
@@ -77,23 +81,73 @@ class PlayScreen : AndroidScreen() {
 }
 
 @Composable
-fun TopBar() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Row {
-            Image(
-                painter = painterResource(id = R.drawable.ic_back),
-                contentDescription = null,
-                modifier = Modifier.clickable {
-                    logger("Back to Music List")
-                }
-            )
+fun TopBar(
+    uiState: State<PlayContract.UIState>,
+    onEventDispatcher: (PlayContract.Intent) -> Unit,
+    musicData: MusicData
+) {
+
+    val context = LocalContext.current
+
+    when (uiState.value) {
+        is PlayContract.UIState.CheckMusic -> {
+            val isSaved = (uiState.value as PlayContract.UIState.CheckMusic).isSaved
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+                    .height(56.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Image(
+                    painter = painterResource(id = R.drawable.ic_back),
+                    contentDescription = null,
+                    modifier = Modifier.clickable { onEventDispatcher(PlayContract.Intent.Back) }
+                )
+
+                Image(
+                    painter = painterResource(id = if (isSaved) R.drawable.ic_fav else R.drawable.ic_not_fav),
+                    contentDescription = null,
+                    modifier = Modifier.clickable {
+                        if (isSaved) {
+                            onEventDispatcher.invoke(
+                                PlayContract.Intent.DeleteMusic(
+                                    MusicData(
+                                        musicData.id,
+                                        musicData.artist,
+                                        musicData.title,
+                                        musicData.data,
+                                        musicData.duration,
+                                        MyEventBus.selectMusicPos
+                                    )
+                                )
+                            )
+                            toast(context, "Music Removed")
+
+                        } else {
+                            onEventDispatcher.invoke(
+                                PlayContract.Intent.SaveMusic(
+                                    MusicData(
+                                        musicData.id,
+                                        musicData.artist,
+                                        musicData.title,
+                                        musicData.data,
+                                        musicData.duration,
+                                        MyEventBus.selectMusicPos
+                                    )
+                                )
+                            )
+                            toast(context, "Music Saved")
+                        }
+
+                        onEventDispatcher.invoke(PlayContract.Intent.CheckMusic(musicData))
+                    }
+                )
+            }
         }
+
+        else -> {}
     }
 }
 
@@ -101,12 +155,11 @@ fun TopBar() {
 fun PlayScreenContent(
     uiState: State<PlayContract.UIState>,
     eventListener: (PlayContract.Intent) -> Unit,
-    modifier: Modifier
+    modifier: Modifier,
+    data: MusicData
 ) {
 
-    val musicData = MyEventBus.currentMusicData.collectAsState(
-        initial = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
-    )
+    val musicData = MyEventBus.currentMusicData.collectAsState(initial = data)
 
     val seekBarState = MyEventBus.currentTimeFlow.collectAsState(initial = 0)
     var seekBarValue by remember { mutableStateOf(seekBarState.value) }
@@ -213,12 +266,12 @@ fun PlayScreenContent(
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Bottom,
+                verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceAround
             ) {
                 Image(
                     modifier = Modifier
-                        .size(60.dp)
+                        .size(50.dp)
                         .clip(CircleShape)
                         .clickable {
                             eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.PREV))
@@ -230,7 +283,7 @@ fun PlayScreenContent(
 
                 Image(
                     modifier = Modifier
-                        .size(60.dp)
+                        .size(70.dp)
                         .clip(CircleShape)
                         .clickable { eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.MANAGE)) },
                     painter = painterResource(
@@ -243,7 +296,7 @@ fun PlayScreenContent(
                 Image(
                     modifier = Modifier
                         .rotate(180f)
-                        .size(60.dp)
+                        .size(50.dp)
                         .clip(RoundedCornerShape(100.dp))
                         .clickable {
                             eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.NEXT))

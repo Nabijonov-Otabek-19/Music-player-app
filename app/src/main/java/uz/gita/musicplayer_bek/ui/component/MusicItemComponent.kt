@@ -14,18 +14,22 @@ import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.MusicData
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 
-@OptIn(ExperimentalUnitApi::class)
+@OptIn(ExperimentalUnitApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun MusicItemComponent(
     musicData: MusicData,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    onLongClick: () -> Unit
 ) {
 
     Surface(modifier = Modifier
         .wrapContentHeight()
         .fillMaxWidth()
         .padding(vertical = 8.dp, horizontal = 4.dp)
-        .clickable { onClick.invoke() }
+        .combinedClickable(
+            onClick = { onClick.invoke() },
+            onLongClick = { onLongClick.invoke() }
+        )
     ) {
         Row(modifier = Modifier.wrapContentHeight()) {
 
@@ -79,7 +83,7 @@ fun MusicItemComponentPreview() {
 
         MusicItemComponent(
             musicData = musicDate,
-            onClick = {}
+            onClick = {}, {}
         )
     }
 }

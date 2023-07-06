@@ -18,6 +18,9 @@ interface MusicDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun addPlayList(playListEntity: PlayListEntity)
 
+    @Query("SELECT * FROM musics WHERE data = :data")
+    fun checkMusicSaved(data: String): MusicEntity?
+
     @Delete
     fun deleteMusic(musicEntity: MusicEntity)
 

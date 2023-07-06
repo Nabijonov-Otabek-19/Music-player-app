@@ -29,10 +29,10 @@ fun Context.getMusicsCursor(): Flow<Cursor> = flow {
 fun Cursor.getMusicDataByPosition(pos: Int): MusicData {
     this.moveToPosition(pos)
     return MusicData(
-        this.getInt(0),
-        this.getString(1),
-        this.getString(2),
-        this.getString(3),
-        this.getLong(4)
+        id = this.getInt(0),
+        artist = this.getString(1),
+        title = this.getString(2),
+        data = this.getString(3),
+        duration = this.getLong(4)
     )
 }

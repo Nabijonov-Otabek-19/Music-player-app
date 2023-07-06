@@ -25,7 +25,7 @@ interface AddPlaylistContract {
         data class AddPlayList(val playListData: PlayListData) : Intent
     }
 
-    interface PlaylistDirection {
+    interface Direction {
         suspend fun navigateToPlaylistScreen()
     }
 }

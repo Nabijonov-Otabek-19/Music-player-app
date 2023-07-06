@@ -1,9 +1,10 @@
-package uz.gita.musicplayer_bek.presentation.music
+package uz.gita.musicplayer_bek.presentation.playlist
 
 import android.content.Context
 import org.orbitmvi.orbit.ContainerHost
+import uz.gita.musicplayer_bek.data.model.MusicData
 
-sealed interface MusicListContract {
+interface PlayListContract {
 
     interface ViewModel : ContainerHost<UIState, SideEffect> {
         fun onEventDispatcher(intent: Intent)
@@ -11,7 +12,7 @@ sealed interface MusicListContract {
 
     sealed interface UIState {
         object Loading : UIState
-        object PreparedData : UIState
+        data class PreparedData(val savedMusics: List<MusicData>) : UIState
     }
 
     sealed interface SideEffect {
@@ -20,17 +21,14 @@ sealed interface MusicListContract {
     }
 
     sealed interface Intent {
-        data class LoadMusics(val context: Context) : Intent
+        object LoadMusics : Intent
         object PlayMusic : Intent
         object OpenPlayScreen : Intent
-        //object OpenAddPlayListScreen : Intent
-        object OpenPlayListScreen : Intent
         object RequestPermission : Intent
+        data class DeleteMusic(val musicData: MusicData) : Intent
     }
 
-    interface MusicListDirection {
+    interface Direction {
         suspend fun navigateToPlayScreen()
-        //suspend fun navigateToAddPlayListScreen()
-        suspend fun navigateToPlayListScreen()
     }
 }
