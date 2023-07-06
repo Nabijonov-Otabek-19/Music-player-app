@@ -22,13 +22,13 @@ import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.ActionEnum
 import uz.gita.musicplayer_bek.data.model.CommandEnum
 import uz.gita.musicplayer_bek.data.model.MusicData
+import uz.gita.musicplayer_bek.ui.theme.Light_Red
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 import uz.gita.musicplayer_bek.ui.theme.Red
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
 import uz.gita.musicplayer_bek.utils.base.getTime
 import uz.gita.musicplayer_bek.utils.base.startMusicService
-import uz.gita.musicplayer_bek.utils.logger
 import uz.gita.musicplayer_bek.utils.toast
 import java.util.concurrent.TimeUnit
 
@@ -39,9 +39,6 @@ class PlayScreen : AndroidScreen() {
         val context = LocalContext.current
         val viewModel: PlayContract.ViewModel = getViewModel<PlayViewModel>()
         val uiState = viewModel.collectAsState()
-
-        val musicData = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
-        viewModel.onEventDispatcher(PlayContract.Intent.CheckMusic(musicData))
 
         viewModel.collectSideEffect { sideEffect ->
             when (sideEffect) {
@@ -69,12 +66,11 @@ class PlayScreen : AndroidScreen() {
 
         MusicPlayerTheme {
             Surface(color = MaterialTheme.colorScheme.background) {
-                Scaffold(topBar = { TopBar(uiState, viewModel::onEventDispatcher, musicData) }) {
+                Scaffold(topBar = { TopBar(uiState, viewModel::onEventDispatcher) }) {
                     PlayScreenContent(
                         uiState,
                         viewModel::onEventDispatcher,
-                        modifier = Modifier.padding(it),
-                        musicData
+                        modifier = Modifier.padding(it)
                     )
                 }
             }
@@ -85,11 +81,13 @@ class PlayScreen : AndroidScreen() {
 @Composable
 fun TopBar(
     uiState: State<PlayContract.UIState>,
-    onEventDispatcher: (PlayContract.Intent) -> Unit,
-    musicData: MusicData
+    onEventDispatcher: (PlayContract.Intent) -> Unit
 ) {
 
     val context = LocalContext.current
+
+    val musicData = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
+    onEventDispatcher(PlayContract.Intent.CheckMusic(musicData))
 
     when (uiState.value) {
         is PlayContract.UIState.CheckMusic -> {
@@ -97,7 +95,7 @@ fun TopBar(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
+                    .background(color = Light_Red)
                     .height(56.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
@@ -105,46 +103,50 @@ fun TopBar(
                 Image(
                     painter = painterResource(id = R.drawable.ic_back),
                     contentDescription = null,
-                    modifier = Modifier.clickable { onEventDispatcher(PlayContract.Intent.Back) }
+                    modifier = Modifier
+                        .padding(start = 16.dp)
+                        .clickable { onEventDispatcher(PlayContract.Intent.Back) }
                 )
 
                 Image(
                     painter = painterResource(id = if (isSaved) R.drawable.ic_fav else R.drawable.ic_not_fav),
                     contentDescription = null,
-                    modifier = Modifier.clickable {
-                        if (isSaved) {
-                            onEventDispatcher.invoke(
-                                PlayContract.Intent.DeleteMusic(
-                                    MusicData(
-                                        musicData.id,
-                                        musicData.artist,
-                                        musicData.title,
-                                        musicData.data,
-                                        musicData.duration,
-                                        MyEventBus.selectMusicPos
+                    modifier = Modifier
+                        .padding(end = 16.dp)
+                        .clickable {
+                            if (isSaved) {
+                                onEventDispatcher.invoke(
+                                    PlayContract.Intent.DeleteMusic(
+                                        MusicData(
+                                            musicData.id,
+                                            musicData.artist,
+                                            musicData.title,
+                                            musicData.data,
+                                            musicData.duration,
+                                            MyEventBus.selectMusicPos
+                                        )
                                     )
                                 )
-                            )
-                            toast(context, "Music Removed")
+                                toast(context, "Music Removed")
 
-                        } else {
-                            onEventDispatcher.invoke(
-                                PlayContract.Intent.SaveMusic(
-                                    MusicData(
-                                        musicData.id,
-                                        musicData.artist,
-                                        musicData.title,
-                                        musicData.data,
-                                        musicData.duration,
-                                        MyEventBus.selectMusicPos
+                            } else {
+                                onEventDispatcher.invoke(
+                                    PlayContract.Intent.SaveMusic(
+                                        MusicData(
+                                            musicData.id,
+                                            musicData.artist,
+                                            musicData.title,
+                                            musicData.data,
+                                            musicData.duration,
+                                            MyEventBus.selectMusicPos
+                                        )
                                     )
                                 )
-                            )
-                            toast(context, "Music Saved")
+                                toast(context, "Music Saved")
+                            }
+
+                            onEventDispatcher.invoke(PlayContract.Intent.CheckMusic(musicData))
                         }
-
-                        onEventDispatcher.invoke(PlayContract.Intent.CheckMusic(musicData))
-                    }
                 )
             }
         }
@@ -157,11 +159,12 @@ fun TopBar(
 fun PlayScreenContent(
     uiState: State<PlayContract.UIState>,
     eventListener: (PlayContract.Intent) -> Unit,
-    modifier: Modifier,
-    data: MusicData
+    modifier: Modifier
 ) {
 
-    val musicData = MyEventBus.currentMusicData.collectAsState(initial = data)
+    val musicData = MyEventBus.currentMusicData.collectAsState(
+        initial = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
+    )
 
     val seekBarState = MyEventBus.currentTimeFlow.collectAsState(initial = 0)
     var seekBarValue by remember { mutableStateOf(seekBarState.value) }
@@ -233,7 +236,6 @@ fun PlayScreenContent(
                 onValueChangeFinished = {
                     MyEventBus.currentTime.value = seekBarValue
                     eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.UPDATE_SEEKBAR))
-                    logger("Slider = onValueChangeFinished")
                 },
                 valueRange = 0f..musicData.value!!.duration.toFloat(),
                 steps = 1000,

@@ -136,9 +136,17 @@ class MusicService : Service() {
             }
 
             CommandEnum.UPDATE_SEEKBAR -> {
-                job?.cancel()
-                musicPlayer.seekTo(MyEventBus.currentTime.value)
-                job = moveProgress().onEach { MyEventBus.currentTimeFlow.emit(it) }.launchIn(scope)
+                if (musicPlayer.isPlaying) {
+                    job?.cancel()
+                    musicPlayer.seekTo(MyEventBus.currentTime.value)
+                    job = moveProgress().onEach { MyEventBus.currentTimeFlow.emit(it) }
+                        .launchIn(scope)
+                } else {
+                    musicPlayer.seekTo(MyEventBus.currentTime.value)
+                    job = moveProgress().onEach { MyEventBus.currentTimeFlow.emit(it) }
+                        .launchIn(scope)
+                    job?.cancel()
+                }
             }
 
             CommandEnum.PREV -> {

@@ -3,6 +3,7 @@ package uz.gita.musicplayer_bek.presentation.music
 import android.Manifest
 import android.os.Build
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -23,6 +24,7 @@ import uz.gita.musicplayer_bek.data.model.CommandEnum
 import uz.gita.musicplayer_bek.ui.component.CurrentMusicItemComponent
 import uz.gita.musicplayer_bek.ui.component.LoadingComponent
 import uz.gita.musicplayer_bek.ui.component.MusicItemComponent
+import uz.gita.musicplayer_bek.ui.theme.Light_Red
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.checkPermissions
@@ -140,7 +142,7 @@ fun TopBar(eventListener: (MusicListContract.Intent) -> Unit) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 8.dp)
+            .background(color = Light_Red)
             .height(56.dp),
         horizontalArrangement = Arrangement.Start,
         verticalAlignment = Alignment.CenterVertically
@@ -148,13 +150,16 @@ fun TopBar(eventListener: (MusicListContract.Intent) -> Unit) {
         Text(
             modifier = Modifier
                 .width(0.dp)
+                .padding(start = 16.dp)
                 .weight(1f),
             fontSize = 22.sp,
             text = "Music List"
         )
 
         Image(
-            modifier = Modifier.clickable { eventListener.invoke(MusicListContract.Intent.OpenPlayListScreen) },
+            modifier = Modifier
+                .padding(end = 16.dp)
+                .clickable { eventListener.invoke(MusicListContract.Intent.OpenPlayListScreen) },
             painter = painterResource(id = R.drawable.ic_fav),
             contentDescription = null
         )
