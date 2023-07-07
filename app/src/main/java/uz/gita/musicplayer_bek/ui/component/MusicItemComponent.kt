@@ -7,6 +7,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.*
@@ -49,9 +50,9 @@ fun MusicItemComponent(
             ) {
                 Text(
                     text = musicData.title ?: "Unknown name",
-                    color = Color.Black,
                     fontSize = TextUnit(16f, TextUnitType.Sp),
                     overflow = TextOverflow.Ellipsis,
+                    fontWeight = FontWeight.Bold,
                     maxLines = 1
                 )
 

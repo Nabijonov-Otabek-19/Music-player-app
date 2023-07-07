@@ -11,8 +11,7 @@ data class MusicEntity(
     val artist: String?,
     val title: String?,
     val data: String?,
-    val duration: Long,
-    val storagePosition: Int
+    val duration: Long
 ) {
-    fun toData() = MusicData(id, artist, title, data, duration, storagePosition)
+    fun toData() = MusicData(id, artist, title, data, duration)
 }

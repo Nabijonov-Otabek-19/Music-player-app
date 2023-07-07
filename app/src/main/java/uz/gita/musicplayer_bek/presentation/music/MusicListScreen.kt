@@ -2,25 +2,25 @@ package uz.gita.musicplayer_bek.presentation.music
 
 import android.Manifest
 import android.os.Build
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.*
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.*
-import cafe.adriel.voyager.androidx.AndroidScreen
+import cafe.adriel.voyager.core.lifecycle.LifecycleEffect
 import cafe.adriel.voyager.hilt.getViewModel
-import org.orbitmvi.orbit.compose.collectAsState
-import org.orbitmvi.orbit.compose.collectSideEffect
+import org.orbitmvi.orbit.compose.*
 import uz.gita.musicplayer_bek.MainActivity
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.CommandEnum
+import uz.gita.musicplayer_bek.navigation.AppScreen
 import uz.gita.musicplayer_bek.ui.component.CurrentMusicItemComponent
 import uz.gita.musicplayer_bek.ui.component.LoadingComponent
 import uz.gita.musicplayer_bek.ui.component.MusicItemComponent
@@ -31,7 +31,8 @@ import uz.gita.musicplayer_bek.utils.base.checkPermissions
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
 import uz.gita.musicplayer_bek.utils.base.startMusicService
 
-class MusicListScreen : AndroidScreen() {
+class MusicListScreen : AppScreen() {
+
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
@@ -70,6 +71,10 @@ class MusicListScreen : AndroidScreen() {
                 }
             }
         }
+
+        LifecycleEffect(
+            onStarted = { viewModel.onEventDispatcher(MusicListContract.Intent.LoadMusics(activity)) }
+        )
 
         MusicPlayerTheme {
             Surface(modifier = Modifier.fillMaxSize()) {
@@ -114,20 +119,17 @@ private fun MusicListContent(
                                         eventListener.invoke(MusicListContract.Intent.PlayMusic)
                                         eventListener.invoke(MusicListContract.Intent.OpenPlayScreen)
                                     },
-                                    onLongClick = {
-                                        // nothing to do
-                                    }
+                                    onLongClick = {}
                                 )
                             }
                         }
                     }
 
                     if (MyEventBus.selectMusicPos != -1) {
+                        val data = MyEventBus.currentMusicData.collectAsState()
                         CurrentMusicItemComponent(
                             modifier = Modifier.align(Alignment.BottomCenter),
-                            musicData = MyEventBus.cursor!!.getMusicDataByPosition(
-                                MyEventBus.selectMusicPos
-                            ),
+                            musicData = data.value!!,
                             onClick = { eventListener.invoke(MusicListContract.Intent.OpenPlayScreen) },
                             onClickManage = { startMusicService(context, CommandEnum.MANAGE) })
                     }
@@ -153,6 +155,7 @@ fun TopBar(eventListener: (MusicListContract.Intent) -> Unit) {
                 .padding(start = 16.dp)
                 .weight(1f),
             fontSize = 22.sp,
+            color = Color.Black,
             text = "Music List"
         )
 

@@ -15,13 +15,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.*
-import cafe.adriel.voyager.androidx.AndroidScreen
 import cafe.adriel.voyager.hilt.getViewModel
 import org.orbitmvi.orbit.compose.*
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.ActionEnum
 import uz.gita.musicplayer_bek.data.model.CommandEnum
 import uz.gita.musicplayer_bek.data.model.MusicData
+import uz.gita.musicplayer_bek.navigation.AppScreen
 import uz.gita.musicplayer_bek.ui.theme.Light_Red
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 import uz.gita.musicplayer_bek.ui.theme.Red
@@ -32,7 +32,7 @@ import uz.gita.musicplayer_bek.utils.base.startMusicService
 import uz.gita.musicplayer_bek.utils.toast
 import java.util.concurrent.TimeUnit
 
-class PlayScreen : AndroidScreen() {
+class PlayScreen : AppScreen() {
     @OptIn(ExperimentalMaterial3Api::class)
     @Composable
     override fun Content() {
@@ -122,8 +122,7 @@ fun TopBar(
                                             musicData.artist,
                                             musicData.title,
                                             musicData.data,
-                                            musicData.duration,
-                                            MyEventBus.selectMusicPos
+                                            musicData.duration
                                         )
                                     )
                                 )
@@ -137,8 +136,7 @@ fun TopBar(
                                             musicData.artist,
                                             musicData.title,
                                             musicData.data,
-                                            musicData.duration,
-                                            MyEventBus.selectMusicPos
+                                            musicData.duration
                                         )
                                     )
                                 )

@@ -22,14 +22,6 @@ class MusicListViewModel @Inject constructor(
     override val container =
         container<MusicListContract.UIState, MusicListContract.SideEffect>(MusicListContract.UIState.Loading)
 
-    init {
-        intent {
-            reduce {
-                if (MyEventBus.cursor != null) MusicListContract.UIState.PreparedData
-                else MusicListContract.UIState.Loading
-            }
-        }
-    }
 
     override fun onEventDispatcher(intent: MusicListContract.Intent) {
         when (intent) {
@@ -42,11 +34,7 @@ class MusicListViewModel @Inject constructor(
                     .launchIn(viewModelScope)
             }
 
-            /*MusicListContract.Intent.OpenAddPlayListScreen -> {
-                viewModelScope.launch { direction.navigateToAddPlayListScreen() }
-            }*/
-
-            MusicListContract.Intent.OpenPlayListScreen ->{
+            MusicListContract.Intent.OpenPlayListScreen -> {
                 viewModelScope.launch { direction.navigateToPlayListScreen() }
             }
 

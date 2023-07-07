@@ -12,7 +12,8 @@ interface PlayListContract {
 
     sealed interface UIState {
         object Loading : UIState
-        data class PreparedData(val savedMusics: List<MusicData>) : UIState
+        object PreparedData : UIState
+        //data class PreparedData(val savedMusics: List<MusicData>) : UIState
     }
 
     sealed interface SideEffect {
