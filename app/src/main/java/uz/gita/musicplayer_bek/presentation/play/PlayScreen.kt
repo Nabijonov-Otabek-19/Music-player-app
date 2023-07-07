@@ -40,6 +40,10 @@ class PlayScreen : AppScreen() {
         val viewModel: PlayContract.ViewModel = getViewModel<PlayViewModel>()
         val uiState = viewModel.collectAsState()
 
+        val musicData = MyEventBus.currentMusicData.collectAsState(
+            initial = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
+        )
+
         viewModel.collectSideEffect { sideEffect ->
             when (sideEffect) {
                 is PlayContract.SideEffect.UserAction -> {
@@ -66,9 +70,9 @@ class PlayScreen : AppScreen() {
 
         MusicPlayerTheme {
             Surface(color = MaterialTheme.colorScheme.background) {
-                Scaffold(topBar = { TopBar(uiState, viewModel::onEventDispatcher) }) {
+                Scaffold(topBar = { TopBar(musicData, uiState, viewModel::onEventDispatcher) }) {
                     PlayScreenContent(
-                        uiState,
+                        musicData,
                         viewModel::onEventDispatcher,
                         modifier = Modifier.padding(it)
                     )
@@ -80,14 +84,13 @@ class PlayScreen : AppScreen() {
 
 @Composable
 fun TopBar(
+    musicData: State<MusicData?>,
     uiState: State<PlayContract.UIState>,
     onEventDispatcher: (PlayContract.Intent) -> Unit
 ) {
 
     val context = LocalContext.current
-
-    val musicData = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
-    onEventDispatcher(PlayContract.Intent.CheckMusic(musicData))
+    onEventDispatcher(PlayContract.Intent.CheckMusic(musicData.value!!))
 
     when (uiState.value) {
         is PlayContract.UIState.CheckMusic -> {
@@ -100,52 +103,57 @@ fun TopBar(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_back),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(start = 16.dp)
-                        .clickable { onEventDispatcher(PlayContract.Intent.Back) }
-                )
 
-                Image(
-                    painter = painterResource(id = if (isSaved) R.drawable.ic_fav else R.drawable.ic_not_fav),
-                    contentDescription = null,
-                    modifier = Modifier
-                        .padding(end = 16.dp)
-                        .clickable {
-                            if (isSaved) {
-                                onEventDispatcher.invoke(
-                                    PlayContract.Intent.DeleteMusic(
-                                        MusicData(
-                                            musicData.id,
-                                            musicData.artist,
-                                            musicData.title,
-                                            musicData.data,
-                                            musicData.duration
-                                        )
+                IconButton(
+                    modifier = Modifier.padding(start = 16.dp),
+                    onClick = { onEventDispatcher(PlayContract.Intent.Back) }
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.ic_back),
+                        contentDescription = null
+                    )
+                }
+
+                IconButton(
+                    modifier = Modifier.padding(end = 16.dp),
+                    onClick = {
+                        if (isSaved) {
+                            onEventDispatcher.invoke(
+                                PlayContract.Intent.DeleteMusic(
+                                    MusicData(
+                                        musicData.value!!.id,
+                                        musicData.value!!.artist,
+                                        musicData.value!!.title,
+                                        musicData.value!!.data,
+                                        musicData.value!!.duration
                                     )
                                 )
-                                toast(context, "Music Removed")
+                            )
+                            toast(context, "Music Removed")
 
-                            } else {
-                                onEventDispatcher.invoke(
-                                    PlayContract.Intent.SaveMusic(
-                                        MusicData(
-                                            musicData.id,
-                                            musicData.artist,
-                                            musicData.title,
-                                            musicData.data,
-                                            musicData.duration
-                                        )
+                        } else {
+                            onEventDispatcher.invoke(
+                                PlayContract.Intent.SaveMusic(
+                                    MusicData(
+                                        musicData.value!!.id,
+                                        musicData.value!!.artist,
+                                        musicData.value!!.title,
+                                        musicData.value!!.data,
+                                        musicData.value!!.duration
                                     )
                                 )
-                                toast(context, "Music Saved")
-                            }
-
-                            onEventDispatcher.invoke(PlayContract.Intent.CheckMusic(musicData))
+                            )
+                            toast(context, "Music Saved")
                         }
-                )
+
+                        onEventDispatcher.invoke(PlayContract.Intent.CheckMusic(musicData.value!!))
+                    }
+                ) {
+                    Image(
+                        painter = painterResource(id = if (isSaved) R.drawable.ic_fav else R.drawable.ic_not_fav),
+                        contentDescription = null
+                    )
+                }
             }
         }
 
@@ -155,14 +163,10 @@ fun TopBar(
 
 @Composable
 fun PlayScreenContent(
-    uiState: State<PlayContract.UIState>,
+    musicData: State<MusicData?>,
     eventListener: (PlayContract.Intent) -> Unit,
     modifier: Modifier
 ) {
-
-    val musicData = MyEventBus.currentMusicData.collectAsState(
-        initial = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
-    )
 
     val seekBarState = MyEventBus.currentTimeFlow.collectAsState(initial = 0)
     var seekBarValue by remember { mutableStateOf(seekBarState.value) }
@@ -173,8 +177,8 @@ fun PlayScreenContent(
     val minutes = (milliseconds / 1000 / 60) % 60
     val seconds = (milliseconds / 1000) % 60
 
-    val duration = if (hours == 0L) "%02d:%02d".format(minutes, seconds)
-    else "%02d:%02d:%02d".format(hours, minutes, seconds) // 03:45
+    val duration = if (hours == 0L) "%02d:%02d".format(minutes, seconds) // 03:45
+    else "%02d:%02d:%02d".format(hours, minutes, seconds) // 01:03:45
 
     Column(
         modifier = modifier
@@ -280,6 +284,7 @@ fun PlayScreenContent(
                         .clickable {
                             eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.PREV))
                             seekBarValue = 0
+                            eventListener(PlayContract.Intent.CheckMusic(musicData.value!!))
                         },
                     painter = painterResource(id = R.drawable.previous),
                     contentDescription = null
@@ -305,6 +310,7 @@ fun PlayScreenContent(
                         .clickable {
                             eventListener.invoke(PlayContract.Intent.UserAction(ActionEnum.NEXT))
                             seekBarValue = 0
+                            eventListener(PlayContract.Intent.CheckMusic(musicData.value!!))
                         },
                     painter = painterResource(id = R.drawable.previous),
                     contentDescription = null
