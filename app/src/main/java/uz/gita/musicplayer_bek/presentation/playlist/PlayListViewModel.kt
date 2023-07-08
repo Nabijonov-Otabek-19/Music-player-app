@@ -44,10 +44,6 @@ class PlayListViewModel @Inject constructor(
             PlayListContract.Intent.OpenPlayScreen -> {
                 viewModelScope.launch { direction.navigateToPlayScreen() }
             }
-
-            PlayListContract.Intent.RequestPermission -> {
-                intent { postSideEffect(PlayListContract.SideEffect.OpenPermissionDialog) }
-            }
         }
     }
 }

@@ -98,7 +98,7 @@ private fun MusicListContent(
     eventListener: (MusicListContract.Intent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
+    val context = LocalContext.current as MainActivity
 
     Surface(modifier = modifier.fillMaxSize()) {
         Box {
@@ -132,6 +132,8 @@ private fun MusicListContent(
                             musicData = data.value!!,
                             onClick = { eventListener.invoke(MusicListContract.Intent.OpenPlayScreen) },
                             onClickManage = { startMusicService(context, CommandEnum.MANAGE) })
+                    } else {
+                        eventListener.invoke(MusicListContract.Intent.Restart)
                     }
                 }
             }

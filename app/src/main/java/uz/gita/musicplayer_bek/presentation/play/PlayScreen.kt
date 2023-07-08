@@ -105,7 +105,7 @@ fun TopBar(
             ) {
 
                 IconButton(
-                    modifier = Modifier.padding(start = 16.dp),
+                    modifier = Modifier.padding(start = 12.dp),
                     onClick = { onEventDispatcher(PlayContract.Intent.Back) }
                 ) {
                     Image(
@@ -115,7 +115,7 @@ fun TopBar(
                 }
 
                 IconButton(
-                    modifier = Modifier.padding(end = 16.dp),
+                    modifier = Modifier.padding(end = 12.dp),
                     onClick = {
                         if (isSaved) {
                             onEventDispatcher.invoke(

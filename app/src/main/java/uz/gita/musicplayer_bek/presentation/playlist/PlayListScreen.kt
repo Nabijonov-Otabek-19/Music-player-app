@@ -1,7 +1,5 @@
 package uz.gita.musicplayer_bek.presentation.playlist
 
-import android.Manifest
-import android.os.Build
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -26,7 +24,6 @@ import uz.gita.musicplayer_bek.ui.theme.Light_Red
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.checkMusicExistance
-import uz.gita.musicplayer_bek.utils.base.checkPermissions
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
 import uz.gita.musicplayer_bek.utils.base.startMusicService
 
@@ -38,6 +35,18 @@ class PlayListScreen : AppScreen() {
         val viewModel: PlayListContract.ViewModel = getViewModel<PlayListViewModel>()
         val uiState = viewModel.collectAsState()
 
+        viewModel.collectSideEffect { sideEffect ->
+            when (sideEffect) {
+                PlayListContract.SideEffect.StartMusicService -> {
+                    startMusicService(activity, CommandEnum.PLAY)
+                }
+            }
+        }
+
+        LifecycleEffect(
+            onStarted = { viewModel.onEventDispatcher(PlayListContract.Intent.CheckMusicExistance) }
+        )
+
         MusicPlayerTheme {
             Surface(modifier = Modifier.fillMaxSize()) {
                 Scaffold(topBar = { TopBar() }) {
@@ -46,42 +55,6 @@ class PlayListScreen : AppScreen() {
                         eventListener = viewModel::onEventDispatcher,
                         modifier = Modifier.padding(it)
                     )
-                }
-            }
-        }
-
-        LifecycleEffect(
-            onStarted = { viewModel.onEventDispatcher(PlayListContract.Intent.RequestPermission) }
-        )
-
-        viewModel.collectSideEffect { sideEffect ->
-            when (sideEffect) {
-                PlayListContract.SideEffect.StartMusicService -> {
-                    startMusicService(activity, CommandEnum.PLAY)
-                }
-
-                PlayListContract.SideEffect.OpenPermissionDialog -> {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        activity.checkPermissions(
-                            arrayListOf(
-                                Manifest.permission.READ_EXTERNAL_STORAGE,
-                                Manifest.permission.POST_NOTIFICATIONS,
-                                Manifest.permission.READ_MEDIA_AUDIO,
-                                Manifest.permission.READ_PHONE_STATE
-                            )
-                        ) {
-                            viewModel.onEventDispatcher(PlayListContract.Intent.CheckMusicExistance)
-                        }
-                    } else {
-                        activity.checkPermissions(
-                            arrayListOf(
-                                Manifest.permission.READ_EXTERNAL_STORAGE,
-                                Manifest.permission.READ_PHONE_STATE
-                            )
-                        ) {
-                            viewModel.onEventDispatcher(PlayListContract.Intent.CheckMusicExistance)
-                        }
-                    }
                 }
             }
         }
@@ -110,7 +83,7 @@ fun PlayListScreenContent(
             }
 
             PlayListContract.UIState.Loading -> {
-                eventListener.invoke(PlayListContract.Intent.RequestPermission)
+                eventListener.invoke(PlayListContract.Intent.CheckMusicExistance)
             }
 
             is PlayListContract.UIState.PreparedData -> {
