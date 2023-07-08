@@ -125,7 +125,9 @@ private fun MusicListContent(
                         }
                     }
 
-                    if (MyEventBus.selectMusicPos != -1) {
+                    if (MyEventBus.selectMusicPos != -1 ||
+                        MyEventBus.selectMusicPos >= MyEventBus.cursor!!.count
+                    ) {
                         val data = MyEventBus.currentMusicData.collectAsState()
                         CurrentMusicItemComponent(
                             modifier = Modifier.align(Alignment.BottomCenter),
