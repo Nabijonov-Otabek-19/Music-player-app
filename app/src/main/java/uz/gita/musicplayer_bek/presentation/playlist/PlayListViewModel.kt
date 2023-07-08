@@ -24,11 +24,13 @@ class PlayListViewModel @Inject constructor(
 
     override fun onEventDispatcher(intent: PlayListContract.Intent) {
         when (intent) {
+            PlayListContract.Intent.CheckMusicExistance -> {
+                MyEventBus.cursor = appRepository.getSavedMusics()
+                intent { reduce { PlayListContract.UIState.IsExistMusic } }
+            }
+
             PlayListContract.Intent.LoadMusics -> {
-                viewModelScope.launch {
-                    MyEventBus.cursor = appRepository.getSavedMusics()
-                    intent { reduce { PlayListContract.UIState.PreparedData } }
-                }
+                intent { reduce { PlayListContract.UIState.PreparedData } }
             }
 
             is PlayListContract.Intent.DeleteMusic -> {

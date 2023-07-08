@@ -196,7 +196,6 @@ fun PlayScreenContent(
                 modifier = Modifier
                     .size(250.dp)
                     .padding(top = 10.dp, bottom = 12.dp)
-                    //.background(Color(0XFF988E8E), RoundedCornerShape(4.dp))
                     .align(Alignment.CenterHorizontally),
                 painter = painterResource(id = R.drawable.ic_play_screen),
                 contentDescription = null

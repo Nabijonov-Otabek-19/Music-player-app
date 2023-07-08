@@ -1,6 +1,5 @@
 package uz.gita.musicplayer_bek.presentation.playlist
 
-import android.content.Context
 import org.orbitmvi.orbit.ContainerHost
 import uz.gita.musicplayer_bek.data.model.MusicData
 
@@ -12,8 +11,8 @@ interface PlayListContract {
 
     sealed interface UIState {
         object Loading : UIState
+        object IsExistMusic : UIState
         object PreparedData : UIState
-        //data class PreparedData(val savedMusics: List<MusicData>) : UIState
     }
 
     sealed interface SideEffect {
@@ -22,6 +21,7 @@ interface PlayListContract {
     }
 
     sealed interface Intent {
+        object CheckMusicExistance : Intent
         object LoadMusics : Intent
         object PlayMusic : Intent
         object OpenPlayScreen : Intent

@@ -25,6 +25,7 @@ import uz.gita.musicplayer_bek.ui.component.MusicItemComponent
 import uz.gita.musicplayer_bek.ui.theme.Light_Red
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 import uz.gita.musicplayer_bek.utils.MyEventBus
+import uz.gita.musicplayer_bek.utils.base.checkMusicExistance
 import uz.gita.musicplayer_bek.utils.base.checkPermissions
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
 import uz.gita.musicplayer_bek.utils.base.startMusicService
@@ -50,7 +51,7 @@ class PlayListScreen : AppScreen() {
         }
 
         LifecycleEffect(
-            onStarted = { viewModel.onEventDispatcher(PlayListContract.Intent.LoadMusics) }
+            onStarted = { viewModel.onEventDispatcher(PlayListContract.Intent.RequestPermission) }
         )
 
         viewModel.collectSideEffect { sideEffect ->
@@ -69,7 +70,7 @@ class PlayListScreen : AppScreen() {
                                 Manifest.permission.READ_PHONE_STATE
                             )
                         ) {
-                            viewModel.onEventDispatcher(PlayListContract.Intent.LoadMusics)
+                            viewModel.onEventDispatcher(PlayListContract.Intent.CheckMusicExistance)
                         }
                     } else {
                         activity.checkPermissions(
@@ -78,7 +79,7 @@ class PlayListScreen : AppScreen() {
                                 Manifest.permission.READ_PHONE_STATE
                             )
                         ) {
-                            viewModel.onEventDispatcher(PlayListContract.Intent.LoadMusics)
+                            viewModel.onEventDispatcher(PlayListContract.Intent.CheckMusicExistance)
                         }
                     }
                 }
@@ -96,13 +97,23 @@ fun PlayListScreenContent(
 
     Box(modifier = modifier.fillMaxSize()) {
         when (uiState.value) {
-            PlayListContract.UIState.Loading -> {
-                LoadingComponent()
+
+            PlayListContract.UIState.IsExistMusic -> {
+                for (pos in 0 until MyEventBus.cursor!!.count) {
+                    LoadingComponent()
+                    val data = MyEventBus.cursor!!.getMusicDataByPosition(pos)
+                    if (!checkMusicExistance(data)) {
+                        eventListener.invoke(PlayListContract.Intent.DeleteMusic(data))
+                    }
+                }
                 eventListener.invoke(PlayListContract.Intent.LoadMusics)
             }
 
-            is PlayListContract.UIState.PreparedData -> {
+            PlayListContract.UIState.Loading -> {
+                eventListener.invoke(PlayListContract.Intent.RequestPermission)
+            }
 
+            is PlayListContract.UIState.PreparedData -> {
                 if (MyEventBus.cursor!!.count == 0) {
                     Image(
                         modifier = Modifier
