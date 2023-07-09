@@ -26,6 +26,7 @@ import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.checkMusicExistance
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
 import uz.gita.musicplayer_bek.utils.base.startMusicService
+import uz.gita.musicplayer_bek.utils.logger
 
 class PlayListScreen : AppScreen() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -72,8 +73,9 @@ fun PlayListScreenContent(
         when (uiState.value) {
 
             PlayListContract.UIState.IsExistMusic -> {
+                LoadingComponent()
                 for (pos in 0 until MyEventBus.cursor!!.count) {
-                    LoadingComponent()
+                    logger("Room loop = $pos")
                     val data = MyEventBus.cursor!!.getMusicDataByPosition(pos)
                     if (!checkMusicExistance(data)) {
                         eventListener.invoke(PlayListContract.Intent.DeleteMusic(data))
