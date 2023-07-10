@@ -134,8 +134,6 @@ private fun MusicListContent(
                             musicData = data.value!!,
                             onClick = { eventListener.invoke(MusicListContract.Intent.OpenPlayScreen) },
                             onClickManage = { startMusicService(context, CommandEnum.MANAGE) })
-                    } else {
-                        eventListener.invoke(MusicListContract.Intent.Restart)
                     }
                 }
             }

@@ -11,7 +11,6 @@ import org.orbitmvi.orbit.syntax.simple.postSideEffect
 import org.orbitmvi.orbit.syntax.simple.reduce
 import org.orbitmvi.orbit.viewmodel.container
 import uz.gita.musicplayer_bek.utils.MyEventBus
-import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
 import uz.gita.musicplayer_bek.utils.base.getMusicsCursor
 import javax.inject.Inject
 
@@ -34,15 +33,6 @@ class MusicListViewModel @Inject constructor(
                         intent { reduce { MusicListContract.UIState.PreparedData } }
                     }
                     .launchIn(viewModelScope)
-            }
-
-            MusicListContract.Intent.Restart -> {
-                viewModelScope.launch {
-                    MyEventBus.selectMusicPos = 0
-                    MyEventBus.currentMusicData.emit(
-                        MyEventBus.storageCursorForChecking!!.getMusicDataByPosition(0)
-                    )
-                }
             }
 
             MusicListContract.Intent.OpenPlayListScreen -> {

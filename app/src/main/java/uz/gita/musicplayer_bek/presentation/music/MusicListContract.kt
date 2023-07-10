@@ -25,7 +25,6 @@ sealed interface MusicListContract {
         object OpenPlayScreen : Intent
         object OpenPlayListScreen : Intent
         object RequestPermission : Intent
-        object Restart : Intent
     }
 
     interface MusicListDirection {

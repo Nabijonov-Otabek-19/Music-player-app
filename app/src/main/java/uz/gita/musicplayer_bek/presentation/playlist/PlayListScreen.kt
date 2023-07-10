@@ -75,8 +75,8 @@ fun PlayListScreenContent(
             PlayListContract.UIState.IsExistMusic -> {
                 LoadingComponent()
                 for (pos in 0 until MyEventBus.cursor!!.count) {
-                    logger("Room loop = $pos")
                     val data = MyEventBus.cursor!!.getMusicDataByPosition(pos)
+                    logger("Room loop = ${data.title}")
                     if (!checkMusicExistance(data)) {
                         eventListener.invoke(PlayListContract.Intent.DeleteMusic(data))
                     }
