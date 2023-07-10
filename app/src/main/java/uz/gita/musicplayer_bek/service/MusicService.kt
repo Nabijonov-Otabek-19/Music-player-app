@@ -117,7 +117,6 @@ class MusicService : Service() {
         if (MyEventBus.currentCursorEnum == CursorEnum.STORAGE &&
             (MyEventBus.storageCursor == null || MyEventBus.storagePos == -1)
         ) return START_NOT_STICKY
-
         else if (MyEventBus.currentCursorEnum == CursorEnum.SAVED &&
             (MyEventBus.roomCursor == null || MyEventBus.roomPos == -1)
         ) return START_NOT_STICKY
@@ -164,6 +163,9 @@ class MusicService : Service() {
                 if (MyEventBus.currentCursorEnum == CursorEnum.SAVED) {
                     if (MyEventBus.roomPos - 1 == -1) {
                         MyEventBus.roomPos = MyEventBus.roomCursor!!.count - 1
+                    } else if (MyEventBus.roomPos == MyEventBus.roomCursor!!.count) {
+                        MyEventBus.currentCursorEnum = CursorEnum.STORAGE
+                        MyEventBus.storagePos = 0
                     } else {
                         --MyEventBus.roomPos
                     }
@@ -181,6 +183,9 @@ class MusicService : Service() {
                 if (MyEventBus.currentCursorEnum == CursorEnum.SAVED) {
                     if (MyEventBus.roomPos + 1 == MyEventBus.roomCursor!!.count) {
                         MyEventBus.roomPos = 0
+                    } else if (MyEventBus.roomPos == MyEventBus.roomCursor!!.count) {
+                        MyEventBus.currentCursorEnum = CursorEnum.STORAGE
+                        MyEventBus.storagePos = 0
                     } else {
                         ++MyEventBus.roomPos
                     }
