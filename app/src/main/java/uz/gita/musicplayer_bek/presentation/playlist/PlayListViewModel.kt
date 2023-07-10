@@ -25,7 +25,7 @@ class PlayListViewModel @Inject constructor(
     override fun onEventDispatcher(intent: PlayListContract.Intent) {
         when (intent) {
             PlayListContract.Intent.CheckMusicExistance -> {
-                MyEventBus.cursor = appRepository.getSavedMusics()
+                MyEventBus.roomCursor = appRepository.getSavedMusics()
                 intent { reduce { PlayListContract.UIState.IsExistMusic } }
             }
 

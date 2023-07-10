@@ -7,8 +7,8 @@ import uz.gita.musicplayer_bek.utils.logger
 fun checkMusicExistance(musicData: MusicData): Boolean {
 
     // Check if musicData exists in the storage list
-    for (pos in 0 until MyEventBus.storageCursorForChecking!!.count) {
-        val data = MyEventBus.storageCursorForChecking!!.getMusicDataByPosition(pos)
+    for (pos in 0 until MyEventBus.storageCursor!!.count) {
+        val data = MyEventBus.storageCursor!!.getMusicDataByPosition(pos)
         logger("Storage loop = ${data.title}")
         if (musicData == data) {
             return true

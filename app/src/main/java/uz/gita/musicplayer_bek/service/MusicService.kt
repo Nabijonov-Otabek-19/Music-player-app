@@ -22,10 +22,12 @@ import uz.gita.musicplayer_bek.MainActivity
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.broadcast.CallReceiver
 import uz.gita.musicplayer_bek.data.model.CommandEnum
+import uz.gita.musicplayer_bek.data.model.CursorEnum
 import uz.gita.musicplayer_bek.data.model.MusicData
 import uz.gita.musicplayer_bek.ui.theme.Light_Red
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
+import uz.gita.musicplayer_bek.utils.logger
 
 class MusicService : Service() {
 
@@ -112,11 +114,20 @@ class MusicService : Service() {
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (MyEventBus.cursor == null || MyEventBus.selectMusicPos == -1) return START_NOT_STICKY
+        if (MyEventBus.currentCursorEnum == CursorEnum.STORAGE &&
+            (MyEventBus.storageCursor == null || MyEventBus.storagePos == -1)
+        ) return START_NOT_STICKY
+
+        else if (MyEventBus.currentCursorEnum == CursorEnum.SAVED &&
+            (MyEventBus.roomCursor == null || MyEventBus.roomPos == -1)
+        ) return START_NOT_STICKY
+
         val command = intent?.extras?.getSerializable("COMMAND") as CommandEnum
         doneCommand(command)
-        if (command.name != CommandEnum.CLOSE.name) {
-            createNotification(MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos))
+        if (command.name != CommandEnum.CLOSE.name && MyEventBus.currentCursorEnum == CursorEnum.SAVED) {
+            createNotification(MyEventBus.roomCursor!!.getMusicDataByPosition(MyEventBus.roomPos))
+        } else if (command.name != CommandEnum.CLOSE.name && MyEventBus.currentCursorEnum == CursorEnum.STORAGE) {
+            createNotification(MyEventBus.storageCursor!!.getMusicDataByPosition(MyEventBus.storagePos))
         }
         return START_NOT_STICKY
     }
@@ -150,25 +161,46 @@ class MusicService : Service() {
             }
 
             CommandEnum.PREV -> {
-                if (MyEventBus.selectMusicPos - 1 == -1) {
-                    MyEventBus.selectMusicPos = MyEventBus.cursor!!.count - 1
+                if (MyEventBus.currentCursorEnum == CursorEnum.SAVED) {
+                    if (MyEventBus.roomPos - 1 == -1) {
+                        MyEventBus.roomPos = MyEventBus.roomCursor!!.count - 1
+                    } else {
+                        --MyEventBus.roomPos
+                    }
                 } else {
-                    --MyEventBus.selectMusicPos
+                    if (MyEventBus.storagePos - 1 == -1) {
+                        MyEventBus.storagePos = MyEventBus.storageCursor!!.count - 1
+                    } else {
+                        --MyEventBus.storagePos
+                    }
                 }
                 doneCommand(CommandEnum.PLAY)
             }
 
             CommandEnum.NEXT -> {
-                if (MyEventBus.selectMusicPos + 1 == MyEventBus.cursor!!.count) {
-                    MyEventBus.selectMusicPos = 0
+                if (MyEventBus.currentCursorEnum == CursorEnum.SAVED) {
+                    if (MyEventBus.roomPos + 1 == MyEventBus.roomCursor!!.count) {
+                        MyEventBus.roomPos = 0
+                    } else {
+                        ++MyEventBus.roomPos
+                    }
                 } else {
-                    ++MyEventBus.selectMusicPos
+                    if (MyEventBus.storagePos + 1 == MyEventBus.storageCursor!!.count) {
+                        MyEventBus.storagePos = 0
+                    } else {
+                        ++MyEventBus.storagePos
+                    }
                 }
                 doneCommand(CommandEnum.PLAY)
             }
 
             CommandEnum.PLAY -> {
-                val data = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
+                val data =
+                    if (MyEventBus.currentCursorEnum == CursorEnum.SAVED) MyEventBus.roomCursor!!.getMusicDataByPosition(
+                        MyEventBus.roomPos
+                    ) else MyEventBus.storageCursor!!.getMusicDataByPosition(MyEventBus.storagePos)
+
+                logger("Service Play = $data")
                 scope.launch { MyEventBus.currentMusicData.emit(data) }
 
                 MyEventBus.currentTime.value = 0

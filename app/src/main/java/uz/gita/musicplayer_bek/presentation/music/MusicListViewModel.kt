@@ -28,8 +28,7 @@ class MusicListViewModel @Inject constructor(
             is MusicListContract.Intent.LoadMusics -> {
                 intent.context.getMusicsCursor()
                     .onEach {
-                        MyEventBus.storageCursorForChecking = it
-                        MyEventBus.cursor = it
+                        MyEventBus.storageCursor = it
                         intent { reduce { MusicListContract.UIState.PreparedData } }
                     }
                     .launchIn(viewModelScope)

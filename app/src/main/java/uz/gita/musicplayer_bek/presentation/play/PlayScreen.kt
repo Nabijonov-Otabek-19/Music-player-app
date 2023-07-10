@@ -20,6 +20,7 @@ import org.orbitmvi.orbit.compose.*
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.ActionEnum
 import uz.gita.musicplayer_bek.data.model.CommandEnum
+import uz.gita.musicplayer_bek.data.model.CursorEnum
 import uz.gita.musicplayer_bek.data.model.MusicData
 import uz.gita.musicplayer_bek.navigation.AppScreen
 import uz.gita.musicplayer_bek.ui.theme.Light_Red
@@ -41,7 +42,9 @@ class PlayScreen : AppScreen() {
         val uiState = viewModel.collectAsState()
 
         val musicData = MyEventBus.currentMusicData.collectAsState(
-            initial = MyEventBus.cursor!!.getMusicDataByPosition(MyEventBus.selectMusicPos)
+            initial = if (MyEventBus.currentCursorEnum == CursorEnum.SAVED)
+                MyEventBus.roomCursor!!.getMusicDataByPosition(MyEventBus.roomPos)
+            else MyEventBus.storageCursor!!.getMusicDataByPosition(MyEventBus.storagePos)
         )
 
         viewModel.collectSideEffect { sideEffect ->
@@ -70,7 +73,8 @@ class PlayScreen : AppScreen() {
 
         MusicPlayerTheme {
             Surface(color = MaterialTheme.colorScheme.background) {
-                Scaffold(topBar = { TopBar(musicData, uiState, viewModel::onEventDispatcher) }) {
+                Scaffold(
+                    topBar = { TopBar(musicData, uiState, viewModel::onEventDispatcher) }) {
                     PlayScreenContent(
                         musicData,
                         viewModel::onEventDispatcher,

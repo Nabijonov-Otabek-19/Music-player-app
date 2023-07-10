@@ -17,6 +17,7 @@ import org.orbitmvi.orbit.compose.*
 import uz.gita.musicplayer_bek.MainActivity
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.CommandEnum
+import uz.gita.musicplayer_bek.data.model.CursorEnum
 import uz.gita.musicplayer_bek.navigation.AppScreen
 import uz.gita.musicplayer_bek.ui.component.LoadingComponent
 import uz.gita.musicplayer_bek.ui.component.MusicItemComponent
@@ -39,6 +40,7 @@ class PlayListScreen : AppScreen() {
         viewModel.collectSideEffect { sideEffect ->
             when (sideEffect) {
                 PlayListContract.SideEffect.StartMusicService -> {
+                    MyEventBus.currentCursorEnum = CursorEnum.SAVED
                     startMusicService(activity, CommandEnum.PLAY)
                 }
             }
@@ -74,13 +76,14 @@ fun PlayListScreenContent(
 
             PlayListContract.UIState.IsExistMusic -> {
                 LoadingComponent()
-                for (pos in 0 until MyEventBus.cursor!!.count) {
-                    val data = MyEventBus.cursor!!.getMusicDataByPosition(pos)
+                for (pos in 0 until MyEventBus.roomCursor!!.count) {
+                    val data = MyEventBus.roomCursor!!.getMusicDataByPosition(pos)
                     logger("Room loop = ${data.title}")
                     if (!checkMusicExistance(data)) {
                         eventListener.invoke(PlayListContract.Intent.DeleteMusic(data))
                     }
                 }
+
                 eventListener.invoke(PlayListContract.Intent.LoadMusics)
             }
 
@@ -89,7 +92,7 @@ fun PlayListScreenContent(
             }
 
             is PlayListContract.UIState.PreparedData -> {
-                if (MyEventBus.cursor!!.count == 0) {
+                if (MyEventBus.roomCursor!!.count == 0) {
                     Image(
                         modifier = Modifier
                             .align(Alignment.Center)
@@ -99,12 +102,13 @@ fun PlayListScreenContent(
                     )
                 } else {
                     LazyColumn {
-                        for (pos in 0 until MyEventBus.cursor!!.count) {
+                        for (pos in 0 until MyEventBus.roomCursor!!.count) {
                             item {
                                 MusicItemComponent(
-                                    musicData = MyEventBus.cursor!!.getMusicDataByPosition(pos),
+                                    musicData = MyEventBus.roomCursor!!.getMusicDataByPosition(pos),
                                     onClick = {
-                                        MyEventBus.selectMusicPos = pos
+                                        //MyEventBus.selectMusicPos = pos
+                                        MyEventBus.roomPos = pos
                                         eventListener.invoke(PlayListContract.Intent.PlayMusic)
                                         eventListener.invoke(PlayListContract.Intent.OpenPlayScreen)
                                     },

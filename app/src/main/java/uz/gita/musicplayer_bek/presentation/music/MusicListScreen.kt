@@ -20,6 +20,7 @@ import org.orbitmvi.orbit.compose.*
 import uz.gita.musicplayer_bek.MainActivity
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.data.model.CommandEnum
+import uz.gita.musicplayer_bek.data.model.CursorEnum
 import uz.gita.musicplayer_bek.navigation.AppScreen
 import uz.gita.musicplayer_bek.ui.component.CurrentMusicItemComponent
 import uz.gita.musicplayer_bek.ui.component.LoadingComponent
@@ -43,6 +44,7 @@ class MusicListScreen : AppScreen() {
         viewModel.collectSideEffect { sideEffect ->
             when (sideEffect) {
                 MusicListContract.SideEffect.StartMusicService -> {
+                    MyEventBus.currentCursorEnum = CursorEnum.STORAGE
                     startMusicService(activity, CommandEnum.PLAY)
                 }
 
@@ -110,12 +112,14 @@ private fun MusicListContent(
 
                 MusicListContract.UIState.PreparedData -> {
                     LazyColumn {
-                        for (pos in 0 until MyEventBus.cursor!!.count) {
+                        for (pos in 0 until MyEventBus.storageCursor!!.count) {
                             item {
                                 MusicItemComponent(
-                                    musicData = MyEventBus.cursor!!.getMusicDataByPosition(pos),
+                                    musicData = MyEventBus.storageCursor!!.getMusicDataByPosition(
+                                        pos
+                                    ),
                                     onClick = {
-                                        MyEventBus.selectMusicPos = pos
+                                        MyEventBus.storagePos = pos
                                         eventListener.invoke(MusicListContract.Intent.PlayMusic)
                                         eventListener.invoke(MusicListContract.Intent.OpenPlayScreen)
                                     },
@@ -125,15 +129,18 @@ private fun MusicListContent(
                         }
                     }
 
-                    if (MyEventBus.selectMusicPos != -1 ||
-                        MyEventBus.selectMusicPos >= MyEventBus.cursor!!.count
+                    if (MyEventBus.storagePos != -1 ||
+                        MyEventBus.storagePos >= MyEventBus.storageCursor!!.count
                     ) {
                         val data = MyEventBus.currentMusicData.collectAsState()
                         CurrentMusicItemComponent(
                             modifier = Modifier.align(Alignment.BottomCenter),
                             musicData = data.value!!,
                             onClick = { eventListener.invoke(MusicListContract.Intent.OpenPlayScreen) },
-                            onClickManage = { startMusicService(context, CommandEnum.MANAGE) })
+                            onClickManage = {
+                                MyEventBus.currentCursorEnum = CursorEnum.STORAGE
+                                startMusicService(context, CommandEnum.MANAGE)
+                            })
                     }
                 }
             }
