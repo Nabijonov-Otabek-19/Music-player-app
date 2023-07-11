@@ -30,7 +30,7 @@ import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.checkPermissions
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
-import uz.gita.musicplayer_bek.utils.base.startMusicService
+import uz.gita.musicplayer_bek.utils.base.manageMusicService
 
 class MusicListScreen : AppScreen() {
 
@@ -45,7 +45,7 @@ class MusicListScreen : AppScreen() {
             when (sideEffect) {
                 MusicListContract.SideEffect.StartMusicService -> {
                     MyEventBus.currentCursorEnum = CursorEnum.STORAGE
-                    startMusicService(activity, CommandEnum.PLAY)
+                    manageMusicService(activity, CommandEnum.PLAY)
                 }
 
                 MusicListContract.SideEffect.OpenPermissionDialog -> {
@@ -139,7 +139,7 @@ private fun MusicListContent(
                             onClick = { eventListener.invoke(MusicListContract.Intent.OpenPlayScreen) },
                             onClickManage = {
                                 MyEventBus.currentCursorEnum = CursorEnum.STORAGE
-                                startMusicService(context, CommandEnum.MANAGE)
+                                manageMusicService(context, CommandEnum.MANAGE)
                             })
                     }
                 }

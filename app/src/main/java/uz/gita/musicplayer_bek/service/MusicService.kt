@@ -15,9 +15,16 @@ import android.widget.RemoteViews
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
 import androidx.core.app.ServiceCompat
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import uz.gita.musicplayer_bek.MainActivity
 import uz.gita.musicplayer_bek.R
 import uz.gita.musicplayer_bek.broadcast.CallReceiver
@@ -27,7 +34,6 @@ import uz.gita.musicplayer_bek.data.model.MusicData
 import uz.gita.musicplayer_bek.ui.theme.Light_Red
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
-import uz.gita.musicplayer_bek.utils.logger
 
 class MusicService : Service() {
 
@@ -205,7 +211,6 @@ class MusicService : Service() {
                         MyEventBus.roomPos
                     ) else MyEventBus.storageCursor!!.getMusicDataByPosition(MyEventBus.storagePos)
 
-                logger("Service Play = $data")
                 scope.launch { MyEventBus.currentMusicData.emit(data) }
 
                 MyEventBus.currentTime.value = 0

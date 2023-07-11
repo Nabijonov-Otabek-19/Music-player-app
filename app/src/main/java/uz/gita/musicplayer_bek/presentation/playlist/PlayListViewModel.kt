@@ -10,6 +10,7 @@ import org.orbitmvi.orbit.syntax.simple.reduce
 import org.orbitmvi.orbit.viewmodel.container
 import uz.gita.musicplayer_bek.domain.repository.AppRepository
 import uz.gita.musicplayer_bek.utils.MyEventBus
+import uz.gita.musicplayer_bek.utils.base.checkMusics
 import javax.inject.Inject
 
 @HiltViewModel
@@ -25,8 +26,12 @@ class PlayListViewModel @Inject constructor(
     override fun onEventDispatcher(intent: PlayListContract.Intent) {
         when (intent) {
             PlayListContract.Intent.CheckMusicExistance -> {
-                MyEventBus.roomCursor = appRepository.getSavedMusics()
-                intent { reduce { PlayListContract.UIState.IsExistMusic } }
+                viewModelScope.launch {
+                    MyEventBus.roomCursor = appRepository.getSavedMusics()
+
+                    checkMusics(this@PlayListViewModel::onEventDispatcher)
+                    intent { reduce { PlayListContract.UIState.IsExistMusic } }
+                }
             }
 
             PlayListContract.Intent.LoadMusics -> {

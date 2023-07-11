@@ -10,9 +10,11 @@ import cafe.adriel.voyager.navigator.Navigator
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import uz.gita.musicplayer_bek.data.model.CommandEnum
 import uz.gita.musicplayer_bek.navigation.NavigatorHandler
 import uz.gita.musicplayer_bek.presentation.music.MusicListScreen
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
+import uz.gita.musicplayer_bek.utils.base.manageMusicService
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -34,5 +36,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        manageMusicService(this, CommandEnum.CLOSE)
     }
 }

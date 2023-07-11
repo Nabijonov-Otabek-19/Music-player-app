@@ -24,10 +24,8 @@ import uz.gita.musicplayer_bek.ui.component.MusicItemComponent
 import uz.gita.musicplayer_bek.ui.theme.Light_Red
 import uz.gita.musicplayer_bek.ui.theme.MusicPlayerTheme
 import uz.gita.musicplayer_bek.utils.MyEventBus
-import uz.gita.musicplayer_bek.utils.base.checkMusicExistance
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
-import uz.gita.musicplayer_bek.utils.base.startMusicService
-import uz.gita.musicplayer_bek.utils.logger
+import uz.gita.musicplayer_bek.utils.base.manageMusicService
 
 class PlayListScreen : AppScreen() {
     @OptIn(ExperimentalMaterial3Api::class)
@@ -41,7 +39,7 @@ class PlayListScreen : AppScreen() {
             when (sideEffect) {
                 PlayListContract.SideEffect.StartMusicService -> {
                     MyEventBus.currentCursorEnum = CursorEnum.SAVED
-                    startMusicService(activity, CommandEnum.PLAY)
+                    manageMusicService(activity, CommandEnum.PLAY)
                 }
             }
         }
@@ -76,14 +74,6 @@ fun PlayListScreenContent(
 
             PlayListContract.UIState.IsExistMusic -> {
                 LoadingComponent()
-                for (pos in 0 until MyEventBus.roomCursor!!.count) {
-                    val data = MyEventBus.roomCursor!!.getMusicDataByPosition(pos)
-                    logger("Room loop = ${data.title}")
-                    if (!checkMusicExistance(data)) {
-                        eventListener.invoke(PlayListContract.Intent.DeleteMusic(data))
-                    }
-                }
-
                 eventListener.invoke(PlayListContract.Intent.LoadMusics)
             }
 

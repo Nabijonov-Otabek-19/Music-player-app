@@ -29,7 +29,7 @@ import uz.gita.musicplayer_bek.ui.theme.Red
 import uz.gita.musicplayer_bek.utils.MyEventBus
 import uz.gita.musicplayer_bek.utils.base.getMusicDataByPosition
 import uz.gita.musicplayer_bek.utils.base.getTime
-import uz.gita.musicplayer_bek.utils.base.startMusicService
+import uz.gita.musicplayer_bek.utils.base.manageMusicService
 import uz.gita.musicplayer_bek.utils.toast
 import java.util.concurrent.TimeUnit
 
@@ -52,19 +52,19 @@ class PlayScreen : AppScreen() {
                 is PlayContract.SideEffect.UserAction -> {
                     when (sideEffect.actionEnum) {
                         ActionEnum.MANAGE -> {
-                            startMusicService(context, CommandEnum.MANAGE)
+                            manageMusicService(context, CommandEnum.MANAGE)
                         }
 
                         ActionEnum.NEXT -> {
-                            startMusicService(context, CommandEnum.NEXT)
+                            manageMusicService(context, CommandEnum.NEXT)
                         }
 
                         ActionEnum.PREV -> {
-                            startMusicService(context, CommandEnum.PREV)
+                            manageMusicService(context, CommandEnum.PREV)
                         }
 
                         ActionEnum.UPDATE_SEEKBAR -> {
-                            startMusicService(context, CommandEnum.UPDATE_SEEKBAR)
+                            manageMusicService(context, CommandEnum.UPDATE_SEEKBAR)
                         }
                     }
                 }
@@ -123,29 +123,13 @@ fun TopBar(
                     onClick = {
                         if (isSaved) {
                             onEventDispatcher.invoke(
-                                PlayContract.Intent.DeleteMusic(
-                                    MusicData(
-                                        musicData.value!!.id,
-                                        musicData.value!!.artist,
-                                        musicData.value!!.title,
-                                        musicData.value!!.data,
-                                        musicData.value!!.duration
-                                    )
-                                )
+                                PlayContract.Intent.DeleteMusic(musicData.value!!)
                             )
                             toast(context, "Music Removed")
 
                         } else {
                             onEventDispatcher.invoke(
-                                PlayContract.Intent.SaveMusic(
-                                    MusicData(
-                                        musicData.value!!.id,
-                                        musicData.value!!.artist,
-                                        musicData.value!!.title,
-                                        musicData.value!!.data,
-                                        musicData.value!!.duration
-                                    )
-                                )
+                                PlayContract.Intent.SaveMusic(musicData.value!!)
                             )
                             toast(context, "Music Saved")
                         }
