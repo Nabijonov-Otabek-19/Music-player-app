@@ -185,7 +185,7 @@ fun PlayScreenContent(
                     .size(250.dp)
                     .padding(top = 10.dp, bottom = 12.dp)
                     .align(Alignment.CenterHorizontally),
-                painter = painterResource(id = R.drawable.ic_play_screen),
+                painter = painterResource(id = R.drawable.ic_play_screen2),
                 contentDescription = null
             )
 
