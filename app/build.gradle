@@ -92,8 +92,4 @@ dependencies {
 
     // Android Runtime Permission Library
     implementation 'com.karumi:dexter:6.2.3'
-
-    // Coroutine
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.2"
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.2'
 }
